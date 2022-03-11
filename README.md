@@ -14,9 +14,16 @@ Paper: https://arxiv.org/abs/2110.06308
 ## Contents
 We have implemented cubic regularization to CGM in C, Python, and Matlab. 
 
-The C implementation is connected to AMPL and includes CGM with and without cubic regularization. 
+C code:
+- The C implementation is connected to AMPL and includes CGM with and without cubic regularization. 
 
-The Python and Matlab implementations includes the cubic regularization and two machine learning examples: Huber and Group LASSO. 
+Matlab code:
+- CGM with and without cubic regularization
+- Stephen Boyd's ADMM code (https://web.stanford.edu/~boyd/papers/admm/) for comparison. 
+- Two machine learning examples: Huber and Group LASSO.
 
+Python code:
+- CGM with cubic regularization
+- Two machine learning examples: Huber and Group LASSO.
 
 
