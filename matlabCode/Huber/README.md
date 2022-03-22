@@ -12,28 +12,28 @@ We also include Boyd's ADMM for comparison.
 
 ## HOW TO USE IT
 
-1. MODIFY SOLVER
+1. **MODIFY SOLVER**
 
 There are 3 solvers that can be called by the toggling the variable called model. 
 
-model = 1; -> solve using CG without cubic regularization 
+*model = 1;* -> solve using CG without cubic regularization 
 
-model = 2; -> solve using CG with cubic regularization 
+*model = 2;* -> solve using CG with cubic regularization 
 
-model = 3; -> solve using ADMM (Boyd's code)
+*model = 3;* -> solve using ADMM (Boyd's code)
 
-model = 4; -> solve using all the above. In other words, solve each problem 3 times, using a different solver each time. 
+*model = 4;* -> solve using all the above. In other words, solve each problem 3 times, using a different solver each time. 
 
-2. MODIFY PROBLEM SIZE
+2. **MODIFY PROBLEM SIZE**
 
-To change the problem size, you can modify m and n. 
+To change the problem size, you can modify *m* and *n*. 
 
-3. MODIFY NUMBER OF PROBLEMS
+3. **MODIFY NUMBER OF PROBLEMS**
 
-We run the problem 100 times by using a for loop. To change the number of problems, modify the rr variable. 
+We run the problem 100 times by using a for loop. To change the number of problems, modify the *rr* variable. 
 
 
-### CONTACT 
+## CONTACT 
 
 Email: cb3452@drexel.edu 
 
