@@ -1,6 +1,4 @@
-
---------------------------------------------------
-********* ABOUT *********
+## ABOUT 
 Matlab Code - Huber Examples
 Authors: Cassidy Buhler and Hande Benson
 Date code was last modified: March 11, 2022
