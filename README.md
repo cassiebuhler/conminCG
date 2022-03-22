@@ -27,3 +27,6 @@ Python code:
 - Two machine learning examples: Huber and Group LASSO.
 
 NOTE: Python implementation is still in progress. Group LASSO code has some bugs, but the Huber code works fine. Use at your own risk...
+
+## Contact
+Email: cb3452@drexel.edu 
