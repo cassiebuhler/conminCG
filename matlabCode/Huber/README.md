@@ -14,7 +14,7 @@ We also include Boyd's ADMM for comparison.
 
 1. **MODIFY SOLVER**
 
-There are 3 solvers that can be called by the toggling the variable called model. 
+There are 3 solvers that can be called by the toggling the variable called *model*. 
 
 *model = 1;* -> solve using CG without cubic regularization 
 
