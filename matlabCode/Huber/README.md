@@ -12,6 +12,8 @@ We also include Boyd's ADMM for comparison.
 
 ## HOW TO USE IT
 
+The driver code is the file *huber_Example.m*. You will only need to modify variables inside this file. Depending on the solver you pick, it will call huber_cg_withCubic.m, huber_cg_noCub.m, and/or huber_admm.m. The latter is the same code downloaded from Boyd's website linked above. 
+
 1. **MODIFY SOLVER**
 
 There are 3 solvers that can be called by the toggling the variable called *model*. 
