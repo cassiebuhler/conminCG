@@ -8,7 +8,7 @@ Last modified on March 11, 2022
 import numpy as np
 import time as time
 from scipy import optimize
-def huber_cubic(A, b, lamb, rho, alpha):
+def huber_cg_withCubic(A, b, alpha):
 
     
     #initialize
@@ -24,8 +24,7 @@ def huber_cubic(A, b, lamb, rho, alpha):
     
     # CG solver
     x = 10*np.ones(n)
-    f = 0.0
-    c = grad(A, b, lamb, x, m, 1.0)
+    c = grad(A, b, x, m, 1.0)
     
     pertcnt = 0
     nrst = n
@@ -59,7 +58,6 @@ def huber_cubic(A, b, lamb, rho, alpha):
 
 		# Check for convergence
         if ( np.sqrt(cTc) <= np.sqrt(n)*ABSTOL + RELTOL*np.sqrt(xTx) ):
-            status = 0
             break
 
 		# Compute step direction
@@ -215,12 +213,12 @@ def huber_cubic(A, b, lamb, rho, alpha):
 
 
         
-        afind = lambda a: objective(A, b, lamb, x + a*dx)
+        afind = lambda a: objective(A, b, x + a*dx)
         alpha = optimize.fminbound(afind, 0, 10)
         
         # Take the step and update function value and gradient
         x = x0 + alpha*dx
-        c = grad(A, b, lamb, x, m, 1.0)
+        c = grad(A, b, x, m, 1.0)
         
 
 
@@ -229,12 +227,15 @@ def huber_cubic(A, b, lamb, rho, alpha):
     if not QUIET:
         print('time elapsed: ' + str(time.time() - t_start))
     
+    if k == MAX_ITER:
+        print('MAX ITERATION REACHED')
+        
     z = x
     history = x
     print('Iters = %d, invokedCubic = %s\n'% (k, inPowell == 1))
     return z, history
 
-def objective(A, b, lamb,x):
+def objective(A, b,x):
     p =  1/2*huber(A@x - b, 1.0)
     return p 
 
@@ -250,8 +251,7 @@ def huber_grad(x,n,gamma):
     return c
 
 
-
-def grad(A, b, lamb, x, n, gamma):
+def grad(A, b, x, n, gamma):
     c = A.T@huber_grad((A@x-b),n,gamma)
     return c
 

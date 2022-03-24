@@ -10,7 +10,7 @@ import random
 import math
 from scipy.sparse import spdiags
 import numpy as np
-from group_lasso_cubic import group_lasso_cubic
+from groupLASSO_cg_withCubic import groupLASSO_cg_withCubic
 
 random.seed(1)
 np.random.seed(1)
@@ -19,8 +19,9 @@ np.random.seed(1)
 # Generate problem data
 m = 1000      #amount of data
 K = 3       # number of blocks
+alpha = 1.0 #over-relaxation parameter
 lambdas = np.zeros(K)
-for rr in range(5):
+for rr in range(100):
     print("Problem %d"% rr)
     partition = np.random.randint(low = 0, high = 5000,size = K)
     n = sum(partition)# number of features
@@ -62,4 +63,4 @@ for rr in range(5):
     lamb = 0.01*lambda_max
     xtrue = x   # save solution
     #Solve problem
-    x, history = group_lasso_cubic(A, b, lamb, partition, 1.0, 1.0)
+    x, history = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)

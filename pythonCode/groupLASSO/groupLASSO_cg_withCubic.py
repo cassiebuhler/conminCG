@@ -9,7 +9,7 @@ import numpy as np
 import time as time
 from scipy import optimize
 
-def group_lasso_cubic(A, b, lamb, p, rho, alpha):
+def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
     #initialize
     t_start = time.time()
     QUIET    = 0
@@ -28,8 +28,8 @@ def group_lasso_cubic(A, b, lamb, p, rho, alpha):
     #cumulative partition
     cum_part = np.cumsum(p)
     # CG solver
-    x = 0.1*np.ones(n)
-    f = 0.0
+    # x = 0.1*np.ones(n)
+    x = 0.2*np.ones(n)
     c = grad(A,b,lamb,x,cum_part)
     pertcnt = 0 
     nrst = n
@@ -186,15 +186,15 @@ def group_lasso_cubic(A, b, lamb, p, rho, alpha):
                     u13 = np.dot(temp2, y)
                     u14 = np.dot(temp2, p)
                     u15 = np.dot(p, y)
-
                     denom = lam*u14*(u15 + u12) + u13*u13
-
+                    if denom == 0: 
+                        print('COULD NOT SOLVE')
+                        break
                     dx = dx + lam*u14*u10*temp1/denom - (u15 + u12)*u11*temp2/denom + u13*u10*temp2/denom + u13*u11*temp1/denom
 
 		# Check that the search direction is a descent direction
         dxTc = np.dot(dx, c)
         if ( dxTc > 0 ):
-
             break
 		# Save the current point
         x0 = x
@@ -229,6 +229,9 @@ def group_lasso_cubic(A, b, lamb, p, rho, alpha):
     if not QUIET:
         print('time elapsed: ' + str(time.time() - t_start))
     
+    if k == MAX_ITER:
+        print('MAX ITERATION REACHED')
+        
     z = x
     history = x
     print('n = %d, Iters = %d, invokedCubic = %s\n'% (n, k, inPowell == 1))
