@@ -28,8 +28,7 @@ def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
     #cumulative partition
     cum_part = np.cumsum(p)
     # CG solver
-    # x = 0.1*np.ones(n)
-    x = 0.2*np.ones(n)
+    x = 0.1*np.ones(n)
     c = grad(A,b,lamb,x,cum_part)
     pertcnt = 0 
     nrst = n
