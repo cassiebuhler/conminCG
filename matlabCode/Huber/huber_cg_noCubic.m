@@ -135,7 +135,9 @@ end
 if ~QUIET
     toc(t_start);
 end
-
+if k == MAX_ITER
+    fprintf('REACHED MAX ITERATIONS\n')
+end
 z = x;
 history = x;
 fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));

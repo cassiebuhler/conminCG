@@ -20,6 +20,8 @@ if model ~= 4
     fprintf("%s\n", names(model));
     fprintf([repmat('-',1,60),'\n']);
 end
+alpha = 1.0; % over-relaxation parameter (typical values between 1.0 and 1.8).
+rho = 1.0; %augmented Lagrangian parameter
 
 
 for rr = 1:100
@@ -66,19 +68,19 @@ for rr = 1:100
     % Solve problem
     switch model
         case 1
-            [x, history] = groupLASSO_cg_noCubic(A, b, lambda, partition, 1.0);
+            [x, history] = groupLASSO_cg_noCubic(A, b, lambda, partition, alpha);
         case 2
-            [x, history] = groupLASSO_cg_withCubic(A, b, lambda, partition, 1.0);
+            [x, history] = groupLASSO_cg_withCubic(A, b, lambda, partition, alpha);
         case 3
-            [x, history] = groupLASSO_admm(A, b, lambda, partition, 1.0, 1.0); %Boyd's ADMM code
+            [x, history] = groupLASSO_admm(A, b, lambda, partition, rho, alpha); %Boyd's ADMM code
         case 4 %run all models
             fprintf([repmat('-',1,60),'\n']);
             fprintf("%s\n",join(['--',names(1),'--'],''))
-            [x1, history1] = groupLASSO_cg_noCubic(A, b, lambda, partition, 1.0);
+            [x1, history1] = groupLASSO_cg_noCubic(A, b, lambda, partition, alpha);
             fprintf("%s\n",join(['--',names(2),'--'],''))
-            [x2, history2] = groupLASSO_cg_withCubic(A, b, lambda, partition, 1.0);
+            [x2, history2] = groupLASSO_cg_withCubic(A, b, lambda, partition, alpha);
             fprintf("%s\n",join(['--',names(3),'--'],''))
-            [x3, history3] = groupLASSO_admm(A, b, lambda, partition, 1.0, 1.0); %Boyd's ADMM code
+            [x3, history3] = groupLASSO_admm(A, b, lambda, partition, rho, alpha); %Boyd's ADMM code
 
     end
     

@@ -1,7 +1,7 @@
 % Huber Function - Example
 % Code is adapted from Huber fitting code by Boyd https://web.stanford.edu/~boyd/papers/admm/
 % Authors: Cassidy Buhler and Hande Benson
-% Date last modified: March 11, 2022
+% Date last modified: March 24, 2022
 % This code generates random problems that are solved with Conjugate
 % Gradient Method (CGM) with and without Cubic Regularization.
 % We also include Boyd's ADMM for comparison.
@@ -19,6 +19,8 @@ if model ~= 4
     fprintf("%s\n", names(model));
     fprintf([repmat('-',1,40),'\n']);
 end
+alpha = 1.0; % over-relaxation parameter (typical values between 1.0 and 1.8).
+rho = 1.0; %augmented Lagrangian parameter
 
 for rr=1:100 %run 100 instances
     fprintf("Problem %d\n", rr);
@@ -27,25 +29,23 @@ for rr=1:100 %run 100 instances
     A = A*spdiags(1./sqrt(sum(A.^2))',0,n,n); % normalize columns
     b = A*x0 + sqrt(0.01)*randn(m,1);
     b = b + 10*sprand(m,1,200/m);      % add sparse, large noise
-    lambda_max = norm( A'*b, 'inf' );
-    lambda = 0.001*lambda_max;
     
     % Solve problem
     switch model
         case 1
-            [x, history] = huber_cg_noCubic(A, b, 1.0);
+            [x, history] = huber_cg_noCubic(A, b, alpha);
         case 2
-            [x, history] = huber_cg_withCubic(A, b, 1.0);
+            [x, history] = huber_cg_withCubic(A, b, alpha);
         case 3
-            [x, history] = huber_admm(A, b, 1.0, 1.0); %Boyd's ADMM code
+            [x, history] = huber_admm(A, b, rho, alpha); %Boyd's ADMM code
         case 4
             fprintf([repmat('-',1,60),'\n']);
             fprintf("%s\n",join(['--',names(1),'--'],''))
-            [x1, history1] = huber_cg_noCubic(A, b, 1.0);
+            [x1, history1] = huber_cg_noCubic(A, b, alpha);
             fprintf("%s\n",join(['--',names(2),'--'],''))
-            [x2, history2] = huber_cg_withCubic(A, b, 1.0);
+            [x2, history2] = huber_cg_withCubic(A, b, alpha);
             fprintf("%s\n",join(['--',names(3),'--'],''))
-            [x3, history3] = huber_admm(A, b, 1.0, 1.0); %Boyd's ADMM code
+            [x3, history3] = huber_admm(A, b, rho, alpha); %Boyd's ADMM code
             
     end
 fprintf([repmat('-',1,60),'\n']);

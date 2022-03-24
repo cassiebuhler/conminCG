@@ -85,6 +85,9 @@ end
 if ~QUIET
     toc(t_start);
 end
+if k == MAX_ITER
+    fprintf('REACHED MAX ITERATIONS\n')
+end
 fprintf('Iters = %d\n', k);
 
 end

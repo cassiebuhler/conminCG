@@ -244,6 +244,9 @@ if ~QUIET
      toc(t_start); %print out elapsed time 
 end
 
+if k == MAX_ITER
+    fprintf('REACHED MAX ITERATIONS\n')
+end
 z = x;
 history = x;
 fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
