@@ -1,11 +1,10 @@
 function [z, history] = huber_cg_withCubic(A, b, alpha)
 % Code is adapted from Huber fitting code by Boyd https://web.stanford.edu/~boyd/papers/admm/
 % Authors: Cassidy Buhler and Hande Benson
-% Date last modified: March 11, 2022
 
 % This code minimizes the Huber loss function using Conjugate Gradient WITH
-% Cubic regularization. 
-% 
+% Cubic regularization.
+%
 % [z, history] =  huber_cg_withCubic(A, b, alpha);
 %
 % Solves the following problem via CG with cubic regularization:
@@ -13,15 +12,14 @@ function [z, history] = huber_cg_withCubic(A, b, alpha)
 %   minimize h( Az-b ) where h is the Huber loss funciton
 % The solution is returned in the vector z.
 %
-% history is a structure that contains the objective value, the primal and
-% dual residual norms, and the tolerances for the primal and dual residual
-% norms at each iteration.
+% history is a structure that contains the objective values, time elapsed,
+% and number of iterations
 
 % alpha is the over-relaxation parameter (typical values for alpha are
 % between 1.0 and 1.8).
 
 
-t_start = tic; %save start time 
+t_start = tic; %save start time
 
 % Global constants and defaults
 QUIET    = 0;
@@ -236,20 +234,22 @@ while (k < MAX_ITER)
     % Take the step and update function value and gradient
     x = x0 + alpha*dx;
     c = grad(A, b, x, m, 1.0);
+    history.objval(k)  = objective(A, b, x);
 
-    
 end
-
-if ~QUIET
-     toc(t_start); %print out elapsed time 
-end
-
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
+if ~QUIET
+    elapsedTime = toc(t_start); 
+    fprintf('Elapsed time is %f seconds.\n', elapsedTime);
+    fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
+
+end
 z = x;
-history = x;
-fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
+
+history.time = elapsedTime;
+history.iters = k;
 
 end
 

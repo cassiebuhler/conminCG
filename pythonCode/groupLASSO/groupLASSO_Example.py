@@ -11,17 +11,31 @@ import math
 from scipy.sparse import spdiags
 import numpy as np
 from groupLASSO_cg_withCubic import groupLASSO_cg_withCubic
+from groupLASSO_cg_noCubic import groupLASSO_cg_noCubic
 
 random.seed(1)
 np.random.seed(1)
+
+model = 2 # 0 = CG without Cubic Reg, 1 = CG with cubic Reg, 2 = BOTH MODELS
+names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION"]
+
 
 # Group lasso example with random data
 # Generate problem data
 m = 1000      #amount of data
 K = 3       # number of blocks
+numProbs = 100 #number of problems
+
 alpha = 1.0 #over-relaxation parameter
 lambdas = np.zeros(K)
-for rr in range(100):
+
+
+if model != 2:
+    print("-"*40)
+    print(names[model])
+    print("-"*40)
+    
+for rr in range(numProbs):
     print("Problem %d"% rr)
     partition = np.random.randint(low = 0, high = 5000,size = K)
     n = sum(partition)# number of features
@@ -63,4 +77,15 @@ for rr in range(100):
     lamb = 0.01*lambda_max
     xtrue = x   # save solution
     #Solve problem
-    x, history = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
+    if model == 0:
+        x1, history1 = groupLASSO_cg_noCubic(A, b, lamb, partition, alpha)
+    elif model == 1:
+        x2, history2 = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
+    else:
+        print("-"*40)
+        print('--'+names[0]+'--')
+        x1, history1 = groupLASSO_cg_noCubic(A, b, lamb, partition, alpha)
+        print('--'+names[1]+'--')
+        x2, history2 = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
+    print("-"*40)
+

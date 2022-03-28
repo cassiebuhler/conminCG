@@ -89,14 +89,18 @@ for k = 1:MAX_ITER
     end
 
 end
-
-if ~QUIET
-    toc(t_start);
-end
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
-fprintf('n = %d, Iters = %d\n', n, k);
+
+if ~QUIET
+    elapsedTime = toc(t_start); 
+    fprintf('Elapsed time is %f seconds.\n', elapsedTime);
+    fprintf('Iters = %d\n', k);
+end
+
+history.time = elapsedTime;
+history.iters = k;
 end
 
 function p = objective(A, b, lambda, cum_part, x, z)

@@ -8,7 +8,15 @@ Last modified on March 11, 2022
 from scipy.sparse import spdiags
 import numpy as np
 from huber_cg_withCubic import huber_cg_withCubic
+from huber_cg_noCubic import huber_cg_noCubic
+
 import scipy.sparse as sparse
+
+
+model = 2 # 0 = CG without Cubic Reg, 1 = CG with cubic Reg, 2 = BOTH MODELS
+names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION"]
+
+
 
 # Generate problem data
 np.random.seed(0)
@@ -16,8 +24,16 @@ np.random.seed(0)
 
 m = 1000 #number of examples
 n = 500 # number of features
+numProbs = 100 #number of problems
 alpha = 1.0 #over-relaxation parameter 
-for rr in range(100):
+
+if model != 2:
+    print("-"*40)
+    print(names[model])
+    print("-"*40)
+
+
+for rr in range(numProbs):
     print("Problem %d "% rr)
     x0 = np.random.randn(n,)
     A = np.random.randn(m,n)
@@ -26,6 +42,16 @@ for rr in range(100):
     noise = 10*sparse.random(m,1,density = 200/m) # add sparse, large noise
     b = b + np.squeeze(noise.toarray())
     # Solve problem
-    x, history = huber_cg_withCubic(A, b, alpha)
+    if model == 0:
+        x, history = huber_cg_noCubic(A, b, alpha)
+    elif model == 1:
+        x, history = huber_cg_withCubic(A, b, alpha)
+    else:
+        print("-"*40)
+        print('--'+names[0]+'--')
+        x, history = huber_cg_noCubic(A, b, alpha)
+        print('--'+names[1]+'--')
+        x, history = huber_cg_withCubic(A, b, alpha)
+    print("-"*40)
 
 

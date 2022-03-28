@@ -63,7 +63,6 @@ def huber_cg_withCubic(A, b, alpha):
 		# Compute step direction
         if ( restart == 0 ):
             dx = -c
-            # print("%4d :\t%14.6e\t %14.6e\t | %d \n", k, f, sqrt(cTc/max(1.0, xTx)), pertcnt);
         else:
             if ( abs(np.dot(c,c0)/cTc) > 0.2) and (restart > 1) and (nrst != n ):
 			# Test to see if the Powell restart criterion holds
@@ -116,7 +115,6 @@ def huber_cg_withCubic(A, b, alpha):
                 dprat = 0.0
                 dprat0 = 0.0
                 prat0 = 0.0
-				# print("%4d :\t%14.6e\t %14.6e\t | %d \n", k, f, sqrt(cTc/max(1.0, xTx)), pertcnt);
                 pertcnt = 0
                 
 

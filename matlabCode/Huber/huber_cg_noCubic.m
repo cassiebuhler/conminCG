@@ -2,7 +2,6 @@ function [z, history] = huber_cg_noCubic(A, b, alpha)
 
 % Code is adapted from Huber fitting code by Boyd https://web.stanford.edu/~boyd/papers/admm/
 % Authors: Cassidy Buhler and Hande Benson
-% Date last modified: March 11, 2022
 
 % This code minimizes the Huber loss function using Conjugate Gradient
 % WITHOUT Cubic regularization.
@@ -14,9 +13,8 @@ function [z, history] = huber_cg_noCubic(A, b, alpha)
 %   minimize h( Az-b ) where h is the Huber loss funciton
 % The solution is returned in the vector z.
 %
-% history is a structure that contains the objective value, the primal and
-% dual residual norms, and the tolerances for the primal and dual residual
-% norms at each iteration.
+% history is a structure that contains the objective values, time elapsed,
+% and number of iterations
 
 % alpha is the over-relaxation parameter (typical values for alpha are
 % between 1.0 and 1.8).
@@ -26,7 +24,7 @@ t_start = tic;
 
 % Global constants and defaults
 QUIET    = 0;
-MAX_ITER = 10000;
+MAX_ITER = 1000;
 ABSTOL   = 1e-6;
 RELTOL   = 1e-4;
 
@@ -36,7 +34,6 @@ RELTOL   = 1e-4;
 
 % CG solver
 x = 10*ones(n,1);
-f = 0.0;
 c = grad(A, b, x, m, 1.0);
 
 
@@ -129,19 +126,23 @@ for k = 1:MAX_ITER
     % Take the step and update function value and gradient
     x = x0 + alpha*dx;
     c = grad(A, b, x, m, 1.0);
+    history.objval(k)  = objective(A, b, x);
 
 end
 
-if ~QUIET
-    toc(t_start);
-end
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
-z = x;
-history = x;
-fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));
+if ~QUIET
+    elapsedTime = toc(t_start); 
+    fprintf('Elapsed time is %f seconds.\n', elapsedTime);
+    fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));
 
+end
+z = x;
+
+history.time = elapsedTime;
+history.iters = k;
 end
 
 function p = objective(A, b, x)
