@@ -23,7 +23,7 @@ Matlab code:
 - Two machine learning examples: Huber and Group LASSO.
 
 Python code:
-- CGM with cubic regularization
+- CGM with and without cubic regularization
 - Two machine learning examples: Huber and Group LASSO.
 
 ## Contact
