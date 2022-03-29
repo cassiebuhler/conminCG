@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Dec  8 15:53:05 2021
-Last modified on March 11, 2022
 
 @author: cassiebuhler
 """
@@ -12,32 +11,36 @@ from scipy.sparse import spdiags
 import numpy as np
 from groupLASSO_cg_withCubic import groupLASSO_cg_withCubic
 from groupLASSO_cg_noCubic import groupLASSO_cg_noCubic
+from getPerformanceProfiles import getPerformanceProfiles
 
 random.seed(1)
 np.random.seed(1)
 
 model = 2 # 0 = CG without Cubic Reg, 1 = CG with cubic Reg, 2 = BOTH MODELS
+perfProf = True # outputs a performance profile comparing two methods. 
 names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION"]
 
 
 # Group lasso example with random data
 # Generate problem data
-m = 1000      #amount of data
-K = 3       # number of blocks
+m = 1500      #amount of data
+K = 4       # number of blocks
 numProbs = 100 #number of problems
-
+upper = 1000 #upperbound for partition 
 alpha = 1.0 #over-relaxation parameter
 lambdas = np.zeros(K)
 
+time = np.zeros((numProbs,2))
+iters = np.zeros((numProbs,2))
 
-if model != 2:
+if model != 2: #print out solver name before solving problem(s)
     print("-"*40)
     print(names[model])
     print("-"*40)
     
 for rr in range(numProbs):
     print("Problem %d"% rr)
-    partition = np.random.randint(low = 0, high = 5000,size = K)
+    partition = np.random.randint(low = 0, high = upper,size = K)
     n = sum(partition)# number of features
     p = 100/n#  sparsity density
     
@@ -52,16 +55,12 @@ for rr in range(numProbs):
             # fill nonzeros
             sel = np.arange(start_ind,cum_part[i])
             x[sel] = np.random.randn(partition[i],)
-
         start_ind = cum_part[i]
-
+        
     # generate random data matrix
     A = np.random.randn(m,n)
-    
     # normalize columns of A
-    
     A = A*spdiags(1./np.sqrt(sum(A**2)),0,n,n)
-    
     # generate measurement b with noise
     b = np.dot(A,x) + np.dot(math.sqrt(0.001),np.random.randn(m,))
     # lambda max
@@ -70,7 +69,6 @@ for rr in range(numProbs):
         sel = np.arange(start_ind,cum_part[i])
         lambdas[i] = np.linalg.norm(A[:,sel].T*b)
         start_ind = cum_part[i] 
-
     lambda_max = max(lambdas);
     
     # regularization parameter
@@ -87,5 +85,10 @@ for rr in range(numProbs):
         x1, history1 = groupLASSO_cg_noCubic(A, b, lamb, partition, alpha)
         print('--'+names[1]+'--')
         x2, history2 = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
+        time[rr,:] = [history1['time'],history2['time']] #saving time and iterations for performance profiles
+        iters[rr,:] = [history1['iters'],history2['iters']]
     print("-"*40)
 
+
+if model == 2 and perfProf == True:
+    getPerformanceProfiles(iters,time) #output performance profiles

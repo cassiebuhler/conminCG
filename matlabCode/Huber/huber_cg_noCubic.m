@@ -25,9 +25,8 @@ t_start = tic;
 % Global constants and defaults
 QUIET    = 0;
 MAX_ITER = 1000;
-ABSTOL   = 1e-6;
-RELTOL   = 1e-4;
-
+ABSTOL   = 1e-4;
+RELTOL   = 1e-2;
 % Data preprocessing
 [m, n] = size(A);
 
@@ -127,17 +126,17 @@ for k = 1:MAX_ITER
     x = x0 + alpha*dx;
     c = grad(A, b, x, m, 1.0);
     history.objval(k)  = objective(A, b, x);
-
+    
 end
 
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
 if ~QUIET
-    elapsedTime = toc(t_start); 
+    elapsedTime = toc(t_start);
     fprintf('Elapsed time is %f seconds.\n', elapsedTime);
     fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));
-
+    
 end
 z = x;
 

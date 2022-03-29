@@ -1,4 +1,3 @@
-
 # ABOUT
 ## Matlab Code - Group LASSO Examples
 
@@ -9,8 +8,6 @@
 
 This code generates random problems that are solved with Conjugate Gradient Method (CGM) with and without Cubic Regularization.
 We also include Boyd's ADMM for comparison.
-
-If all the models are ran (model = 4), the code will output a performance profile for number of iterations and elapsed time. 
 
 ## HOW TO USE IT
 
@@ -35,6 +32,10 @@ To change the problem size, you can modify *m* and *K*.
 3. **MODIFY NUMBER OF PROBLEMS**
 
 We run the problem 100 times by using a for loop. To change the number of problems, modify the numProbs variable. 
+ 
+4. **VIEW PERFORMANCE PROFILES**
+
+If all the models are ran (model = 4), and perfProfile = true, the code will output a performance profile (using getPerformanceProfiles.m) for number of iterations and elapsed time. 
 
 
 ## CONTACT 

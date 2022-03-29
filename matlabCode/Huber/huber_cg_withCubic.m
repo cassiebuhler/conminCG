@@ -27,7 +27,6 @@ MAX_ITER = 1000;
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
 
-
 % Data preprocessing
 [m, n] = size(A);
 
@@ -235,22 +234,21 @@ while (k < MAX_ITER)
     x = x0 + alpha*dx;
     c = grad(A, b, x, m, 1.0);
     history.objval(k)  = objective(A, b, x);
-
+    
 end
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
 if ~QUIET
-    elapsedTime = toc(t_start); 
+    elapsedTime = toc(t_start);
     fprintf('Elapsed time is %f seconds.\n', elapsedTime);
     fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
-
+    
 end
 z = x;
 
 history.time = elapsedTime;
 history.iters = k;
-
 end
 
 function p = objective(A, b, x)

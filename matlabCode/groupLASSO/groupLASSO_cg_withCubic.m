@@ -25,7 +25,7 @@ function [z, history] = groupLASSO_cg_withCubic(A, b, lambda, p, alpha)
 t_start = tic;
 % Global constants and defaults
 QUIET    = 0;
-MAX_ITER = 200;
+MAX_ITER = 1000;
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
 
@@ -256,16 +256,16 @@ while (k < MAX_ITER)
     x = x0 + alpha*dx;
     c = grad(A, b, lambda, x, cum_part);
     history.objval(k)  = objective(A, b, lambda, cum_part, x, x);
-
+    
 end
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
 if ~QUIET
-    elapsedTime = toc(t_start); 
+    elapsedTime = toc(t_start);
     fprintf('Elapsed time is %f seconds.\n', elapsedTime);
     fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
-
+    
 end
 z = x;
 

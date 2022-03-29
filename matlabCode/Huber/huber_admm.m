@@ -51,42 +51,42 @@ u = zeros(m,1);
 
 
 for k = 1:MAX_ITER
-
+    
     % x-update
     q = Atb + A'*(z - u);
     x = U \ (L \ q);
-
+    
     % z-update with relaxation
     zold = z;
     Ax_hat = alpha*A*x + (1-alpha)*(zold + b);
     tmp = Ax_hat - b + u;
     z = rho/(1 + rho)*tmp + 1/(1 + rho)*shrinkage(tmp, 1 + 1/rho);
-
+    
     u = u + (Ax_hat - z - b);
-
+    
     % diagnostics, reporting, termination checks
     history.objval(k)  = objective(z);
-
+    
     history.r_norm(k)  = norm(A*x - z - b);
     history.s_norm(k)  = norm(-rho*A'*(z - zold));
-
+    
     history.eps_pri(k) = sqrt(n)*ABSTOL + RELTOL*max([norm(A*x), norm(-z), norm(b)]);
     history.eps_dual(k)= sqrt(n)*ABSTOL + RELTOL*norm(rho*u);
-
-
-
+    
+    
+    
     if history.r_norm(k) < history.eps_pri(k) && ...
-       history.s_norm(k) < history.eps_dual(k);
+            history.s_norm(k) < history.eps_dual(k);
         break
     end
-
+    
 end
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
 
 if ~QUIET
-    elapsedTime = toc(t_start); 
+    elapsedTime = toc(t_start);
     fprintf('Elapsed time is %f seconds.\n', elapsedTime);
     fprintf('Iters = %d\n', k);
 end
@@ -96,24 +96,24 @@ history.iters = k;
 end
 
 function p = objective(z)
-    z1 = -z - 0.5;
-    z2 = 0.5*z.*z;
-    z3 = z - 0.5;
-    p = 1/2*sum(z1.*(z <= -1.0) + z2.*(-1.0 < z).*(z < 1.0 ) + z3.*(z >= 1.0));
+z1 = -z - 0.5;
+z2 = 0.5*z.*z;
+z3 = z - 0.5;
+p = 1/2*sum(z1.*(z <= -1.0) + z2.*(-1.0 < z).*(z < 1.0 ) + z3.*(z >= 1.0));
 
 end
 
 function z = shrinkage(x, kappa)
-    z = max(0,1 - kappa./abs(x)).*x;
+z = max(0,1 - kappa./abs(x)).*x;
 end
 
 function [L U] = factor(A)
-    [m, n] = size(A);
-    if ( m >= n )    % if skinny
-       L = chol( A'*A, 'lower' );
-    end
+[m, n] = size(A);
+if ( m >= n )    % if skinny
+    L = chol( A'*A, 'lower' );
+end
 
-    % force matlab to recognize the upper / lower triangular structure
-    L = sparse(L);
-    U = sparse(L');
+% force matlab to recognize the upper / lower triangular structure
+L = sparse(L);
+U = sparse(L');
 end

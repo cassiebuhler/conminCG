@@ -9,8 +9,6 @@
 This code generates random problems that are solved with Conjugate Gradient Method (CGM) with and without Cubic Regularization.
 We also include Boyd's ADMM for comparison.
 
-If all the models are ran (model = 4), the code will output a performance profile for number of iterations and elapsed time. 
-
 ## HOW TO USE IT
 
 The driver code is the file *huber_Example.m*. **You will only need to modify variables inside *huber_Example.m* file.** Depending on the solver you pick, it will call huber_cg_withCubic.m, huber_cg_noCub.m, and/or huber_admm.m. The latter is the same code downloaded from Boyd's website linked above. 
@@ -35,6 +33,9 @@ To change the problem size, you can modify *m* and *n*.
 
 We run the problem 100 times by using a for loop. To change the number of problems, modify the numProbs variable. 
 
+4. **VIEW PERFORMANCE PROFILES**
+
+If all the models are ran (model = 4), and perfProfile = true, the code will output a performance profile (using getPerformanceProfiles.m) for number of iterations and elapsed time. 
 
 ## CONTACT 
 

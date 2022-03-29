@@ -25,7 +25,7 @@ function [z, history] = groupLASSO_cg_noCubic(A, b, lambda, p, alpha)
 t_start = tic;
 % Global constants and defaults
 QUIET    = 0;
-MAX_ITER = 200;
+MAX_ITER = 1000;
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
 
@@ -118,11 +118,11 @@ for k = 1:MAX_ITER
         nrst = nrst + 1;
         restart = 2;
     end
-
+    
     afind = @(a) objective(A, b, lambda, cum_part,x + a*dx,x);
     [alpha,~,exitflag] = fminbnd(afind, 0, 10);
     if (exitflag ~= 1)
-       fprintf('Line search failed.\n');
+        fprintf('Line search failed.\n');
         break;
     end
     
@@ -130,17 +130,17 @@ for k = 1:MAX_ITER
     x = x0 + alpha*dx;
     c = grad(A, b, lambda, x, cum_part);
     history.objval(k)  = objective(A, b, lambda, cum_part, x, x);
-
+    
 end
 
 if k == MAX_ITER
     fprintf('REACHED MAX ITERATIONS\n')
 end
 if ~QUIET
-    elapsedTime = toc(t_start); 
+    elapsedTime = toc(t_start);
     fprintf('Elapsed time is %f seconds.\n', elapsedTime);
     fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));
-
+    
 end
 z = x;
 

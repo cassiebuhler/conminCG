@@ -14,7 +14,7 @@ def huber_cg_noCubic(A, b, alpha):
     t_start = time.time()
 
     QUIET    = 0
-    MAX_ITER = 200
+    MAX_ITER = 1000
     ABSTOL   = 1e-4
     RELTOL   = 1e-2
     
@@ -37,7 +37,10 @@ def huber_cg_noCubic(A, b, alpha):
     x0 = None
   
     
-    
+ 
+    objs = []
+    history = {}
+    history['objective'] = [] 
 
     while (k < MAX_ITER):
         k += 1
@@ -113,20 +116,22 @@ def huber_cg_noCubic(A, b, alpha):
         # Take the step and update function value and gradient
         x = x0 + alpha*dx
         c = grad(A, b, x, m, 1.0)
-        
+        objs.append(objective(A, b, x))
 
 
-
-    
     if not QUIET:
-        print('time elapsed: ' + str(time.time() - t_start))
-    
+        elapsedTime = time.time() - t_start
+        print('time elapsed: ' + str(elapsedTime))
+        print('n = %d, Iters = %d, invokedCubic = %s\n'% (n, k, inPowell == 1))
+
+        
     if k == MAX_ITER:
         print('MAX ITERATION REACHED')
         
     z = x
-    history = x
-    print('Iters = %d, invokedCubic = %s\n'% (k, inPowell == 1))
+    history['objective'] = objs
+    history['time'] = elapsedTime
+    history['iters'] = k
     return z, history
 
 def objective(A, b,x):
