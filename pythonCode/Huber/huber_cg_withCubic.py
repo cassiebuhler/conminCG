@@ -2,8 +2,18 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Dec  9 14:53:11 2021
-Last modified on March 11, 2022
 @author: cassiebuhler
+
+
+Solves the following problem via Conjugate Gradient WITH Cubic regularization:
+
+minimize h( Az-b ) where h is the Huber loss funciton
+
+The solution is returned in the vector x.
+
+history is a dictionary that contains the objective values, l2 norm of gradients, time elapsed,
+number of iterations, solution status (0 = solved, 1 = Search direction is not descent direction, 
+2 = Iterations limit reached, 3 = search direction is undefined), and if cubic regularization was invoked (TRUE/FALSE)
 """
 import numpy as np
 import time as time
@@ -49,9 +59,12 @@ def huber_cg_withCubic(A, b, alpha):
     dx0 = None
     c00 = None
     
+    status = None
     objs = []
+    gradNorms = []
     history = {}
     history['objective'] = []
+    history['gradNorm'] = []
 
     while (k < MAX_ITER):
         k += 1
@@ -60,6 +73,7 @@ def huber_cg_withCubic(A, b, alpha):
 
 		# Check for convergence
         if ( np.sqrt(cTc) <= np.sqrt(n)*ABSTOL + RELTOL*np.sqrt(xTx) ):
+            status = 0 #solved
             break
 
 		# Compute step direction
@@ -184,13 +198,18 @@ def huber_cg_withCubic(A, b, alpha):
                     u15 = np.dot(p, y);	
                     
                     denom = lam*u14*(u15 + u12) + u13*u13
-                    
+                    if denom < np.finfo(float).eps:
+                        status = 3 
+                        print('Search direction is undefined.')
+                        break
                     dx = dx + lam*u14*u10*temp1/denom - (u15 + u12)*u11*temp2/denom + u13*u10*temp2/denom + u13*u11*temp1/denom;
 
 
 		# Check that the search direction is a descent direction
         dxTc = np.dot(dx, c)
         if ( dxTc > 0 ):
+            status = 1 
+            print('Search direction is not a descent direction.')
             break
 
 		# Save the current point
@@ -220,8 +239,7 @@ def huber_cg_withCubic(A, b, alpha):
         x = x0 + alpha*dx
         c = grad(A, b, x, m, 1.0)
         objs.append(objective(A, b, x))
-
-
+        gradNorms.append(np.linalg.norm(c))
 
 
     if not QUIET:
@@ -230,12 +248,16 @@ def huber_cg_withCubic(A, b, alpha):
         print('n = %d, Iters = %d, invokedCubic = %s\n'% (n, k, inPowell == 1))
     
     if k == MAX_ITER:
-        print('MAX ITERATION REACHED')
+        status = 2 
+        print('Iterations limit reached.')
         
     z = x
     history['objective'] = objs
+    history['gradNorm'] = gradNorms
+    history['status'] = status
     history['time'] = elapsedTime
     history['iters'] = k
+    history['invokedCubic'] = inPowell == 1
     
     return z, history
 

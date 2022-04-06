@@ -15,9 +15,11 @@ function [z, history] = groupLASSO_cg_noCubic(A, b, lambda, p, alpha)
 %
 % The solution is returned in the vector x.
 %
-% history is a structure that contains the objective values, time elapsed,
-% and number of iterations
-
+% ﻿history is a struct that contains the objective values, l2 norm of gradients, time elapsed,
+% number of iterations, solution status (0 = solved, 1 = Search direction is not descent direction, 
+% 2 = Iterations limit reached, 3 = search direction is undefined, 4 = Line search failed), 
+% and if a Powell restart was needed (TRUE/FALSE)
+%
 %
 % alpha is the over-relaxation parameter (typical values for alpha are
 % between 1.0 and 1.8).
@@ -47,7 +49,6 @@ c = grad(A, b, lambda, x, cum_part);
 
 nrst = n;
 restart = false;
-
 inPowell = false;
 
 for k = 1:MAX_ITER
@@ -56,6 +57,7 @@ for k = 1:MAX_ITER
     cTc = dot(c,c);
     % Check for convergence
     if ( sqrt(cTc) <= sqrt(n)*ABSTOL + RELTOL*sqrt(xTx) )
+        status = 0;
         break;
     end
     
@@ -101,7 +103,8 @@ for k = 1:MAX_ITER
     % Check that the search direction is a descent direction
     dxTc = dot(dx, c);
     if ( dxTc > 0 )
-        fprintf('CUBIT: Search direction is not a descent direction.\n');
+        status = 1;
+        fprintf("CUBIT: Search direction is not a descent direction.\n");
         break;
     end
     
@@ -122,6 +125,7 @@ for k = 1:MAX_ITER
     afind = @(a) objective(A, b, lambda, cum_part,x + a*dx,x);
     [alpha,~,exitflag] = fminbnd(afind, 0, 10);
     if (exitflag ~= 1)
+        status = 4;
         fprintf('Line search failed.\n');
         break;
     end
@@ -130,11 +134,12 @@ for k = 1:MAX_ITER
     x = x0 + alpha*dx;
     c = grad(A, b, lambda, x, cum_part);
     history.objval(k)  = objective(A, b, lambda, cum_part, x, x);
-    
+    history.normGrad(k)  = norm(c);  
 end
 
 if k == MAX_ITER
-    fprintf('REACHED MAX ITERATIONS\n')
+    status = 2;
+    fprintf('Interations limit reached.\n')
 end
 if ~QUIET
     elapsedTime = toc(t_start);
@@ -146,6 +151,8 @@ z = x;
 
 history.time = elapsedTime;
 history.iters = k;
+history.status = status;
+history.powellRestart = inPowell==1;
 end
 
 function p = objective(A, b, lambda, cum_part, x, z)

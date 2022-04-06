@@ -10,12 +10,10 @@ from collections import Counter
 import matplotlib.pyplot as plt
 
 
-def getRatio(mat, isIter):
+def getRatio(mat, status):
     best = mat.min(axis=1)
     ratios = mat/best[:,None]
-    maxIter = 1000
-    if isIter:
-        ratios[mat == maxIter] = np.nan; #if it doesn't solve, set ratio to nan 
+    ratios[status != 0] = np.nan; #if it doesn't solve, set ratio to nan 
     return ratios
 
 def performanceProf(ratios):
@@ -32,9 +30,9 @@ def performanceProf(ratios):
   return np.vstack((taus,probs))
 
 
-def getPerformanceProfiles(iters,time):
-    ratios_time = getRatio(time,0) 
-    ratios_iters = getRatio(iters,1)
+def getPerformanceProfiles(iters,time,status):
+    ratios_time = getRatio(time,status) 
+    ratios_iters = getRatio(iters,status)
 
     ppIters_cgNoCubic = performanceProf(ratios_iters[:,0])
     ppIters_cgCubic = performanceProf(ratios_iters[:,1])

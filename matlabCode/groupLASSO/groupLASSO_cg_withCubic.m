@@ -15,8 +15,10 @@ function [z, history] = groupLASSO_cg_withCubic(A, b, lambda, p, alpha)
 %
 % The solution is returned in the vector x.
 %
-% history is a structure that contains the objective values, time elapsed,
-% and number of iterations
+% ﻿history is a struct that contains the objective values, l2 norm of gradients, time elapsed,
+% number of iterations, solution status (0 = solved, 1 = Search direction is not descent direction, 
+% 2 = Iterations limit reached, 3 = search direction is undefined, 4 = Line search failed),
+% and if cubic regularization was invoked (TRUE/FALSE)
 %
 % alpha is the over-relaxation parameter (typical values for alpha are
 % between 1.0 and 1.8).
@@ -54,19 +56,16 @@ inPowell = false;
 dprat = 0.0;
 ddprat = 0.0;
 lam = 0;
-
 k = 0;
 
 while (k < MAX_ITER)
-    
     k = k + 1;
-    
     xTx = dot(x,x);
     cTc = dot(c,c);
     
     % Check for convergence
     if ( sqrt(cTc) <= sqrt(n)*ABSTOL + RELTOL*sqrt(xTx) ) % inftol*inftol*max(1.0, xTx) )
-        status = 0;
+        status = 0; %solved
         break;
     end
     
@@ -212,7 +211,10 @@ while (k < MAX_ITER)
                 u15 = dot(p, y);
                 
                 denom = lam*u14*(u15 + u12) + u13*u13;
-                
+                if denom < eps
+                    status = 3;
+                    fprintf("Search direction is undefined.\n")
+                end
                 dx = dx + lambda*u14*u10*temp1/denom - ...
                     (u15 + u12)*u11*temp2/denom + ...
                     u13*u10*temp2/denom + u13*u11*temp1/denom;
@@ -223,6 +225,7 @@ while (k < MAX_ITER)
     % Check that the search direction is a descent direction
     dxTc = dot(dx, c);
     if ( dxTc > 0 )
+        status = 1;
         fprintf("CUBIT: Search direction is not a descent direction.\n");
         break;
     end
@@ -250,16 +253,23 @@ while (k < MAX_ITER)
     
     
     afind = @(a) objective(A, b, lambda, cum_part,  x + a*dx, x);
-    alpha = fminbnd(afind, 0, 100);
+    [alpha,~,exitflag] = fminbnd(afind, 0, 10);
+    
+    if (exitflag ~= 1)
+        status = 4;
+        fprintf("Line search failed.\n");
+        break;
+    end    
     
     % Take the step and update function value and gradient
     x = x0 + alpha*dx;
     c = grad(A, b, lambda, x, cum_part);
     history.objval(k)  = objective(A, b, lambda, cum_part, x, x);
-    
+    history.normGrad(k)  = norm(c);
 end
 if k == MAX_ITER
-    fprintf('REACHED MAX ITERATIONS\n')
+    status = 2;
+    fprintf('Interations limit reached.\n')
 end
 if ~QUIET
     elapsedTime = toc(t_start);
@@ -271,6 +281,8 @@ z = x;
 
 history.time = elapsedTime;
 history.iters = k;
+history.status = status;
+history.invokedCubic = inPowell==1;
 end
 
 function p = objective(A, b, lambda, cum_part, x, z)

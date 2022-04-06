@@ -3,6 +3,11 @@
 """
 Created on Thu Dec  9 15:20:20 2021
 @author: cassiebuhler
+
+% Huber Function - Example
+% Code is adapted from Huber fitting code by Boyd https://web.stanford.edu/~boyd/papers/admm/ and converted to Python
+% This code generates random problems that are solved with Conjugate
+% Gradient Method (CGM) with and without Cubic Regularization.
 """
 from scipy.sparse import spdiags
 import numpy as np
@@ -31,7 +36,7 @@ alpha = 1.0 #over-relaxation parameter
 
 time = np.zeros((numProbs,2))
 iters = np.zeros((numProbs,2))
-
+status = np.zeros((numProbs,2))
 
 if model != 2:
     print("-"*40)
@@ -60,8 +65,9 @@ for rr in range(numProbs):
         x2, history2 = huber_cg_withCubic(A, b, alpha)
         time[rr,:] = [history1['time'],history2['time']] #saving time and iterations for performance profiles
         iters[rr,:] = [history1['iters'],history2['iters']]
+        status[rr,:] = [history1['status'],history2['status']]
     print("-"*40)
 
 if model == 2 and perfProf == True:
-    getPerformanceProfiles(iters,time) #output performance profiles
+    getPerformanceProfiles(iters,time,status) #output performance profiles
 

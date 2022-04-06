@@ -4,6 +4,10 @@
 Created on Wed Dec  8 15:53:05 2021
 
 @author: cassiebuhler
+% Group LASSO - Example
+% Code is adapted from Group LASSO code by Boyd https://web.stanford.edu/~boyd/papers/admm/ and converted to Python
+% This code generates random problems that are solved with Conjugate
+% Gradient Method (CGM) with and without Cubic Regularization.
 """
 import random
 import math
@@ -32,6 +36,7 @@ lambdas = np.zeros(K)
 
 time = np.zeros((numProbs,2))
 iters = np.zeros((numProbs,2))
+status = np.zeros((numProbs,2))
 
 if model != 2: #print out solver name before solving problem(s)
     print("-"*40)
@@ -87,8 +92,9 @@ for rr in range(numProbs):
         x2, history2 = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
         time[rr,:] = [history1['time'],history2['time']] #saving time and iterations for performance profiles
         iters[rr,:] = [history1['iters'],history2['iters']]
+        status[rr,:] = [history1['status'],history2['status']]
     print("-"*40)
 
 
 if model == 2 and perfProf == True:
-    getPerformanceProfiles(iters,time) #output performance profiles
+    getPerformanceProfiles(iters,time,status) #output performance profiles

@@ -27,6 +27,8 @@ rho = 1.0; %augmented Lagrangian parameter
 
 time = zeros(numProbs,3);
 iters = zeros(numProbs,3);
+status = zeros(numProbs,3);
+
 for rr = 1:numProbs
     fprintf("Problem %d\n", rr);
     partition = randi(upper, [K 1]);
@@ -56,6 +58,7 @@ for rr = 1:numProbs
     % generate measurement b with noise
     b = A*x + sqrt(0.001)*randn(m,1);
     
+    lambdas = zeros(1,K);
     % lambda max
     start_ind = 1;
     for i = 1:K
@@ -86,10 +89,12 @@ for rr = 1:numProbs
             [x3, history3] = groupLASSO_admm(A, b, lambda, partition, rho, alpha); %Boyd's ADMM code
             time(rr,:) = [history1.time, history2.time, history3.time]; %saving time and iterations per problem for performance profiles
             iters(rr,:) = [history1.iters, history2.iters, history3.iters];
+            status(rr,:) = [history1.status, history2.status, history3.status];
+
     end
     fprintf([repmat('-',1,60),'\n']);
 end
 
 if model == 4 && perfProf == true
-    getPerformanceProfiles(time,iters)
+    getPerformanceProfiles(time,iters,status)
 end

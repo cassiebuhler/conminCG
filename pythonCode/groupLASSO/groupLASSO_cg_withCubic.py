@@ -3,6 +3,19 @@
 """
 Created on Wed Dec  8 14:12:02 2021
 @author: cassiebuhler
+
+Solves the following problem via Conjugate Gradient WITH Cubic regularization:
+
+  minimize 1/2*|| Ax - b ||_2^2 + \lambda sum(norm(x_i))
+
+The input p is a K-element vector giving the block sizes n_i, so that x_i
+is in R^{n_i}.
+
+The solution is returned in the vector x.
+
+history is a dictionary that contains the objective values, l2 norm of gradients, time elapsed,
+number of iterations, solution status (0 = solved, 1 = Search direction is not descent direction, 
+2 = Iterations limit reached, 3 = search direction is undefined), and if cubic regularization was invoked (TRUE/FALSE)
 """
 import numpy as np
 import time as time
@@ -37,7 +50,6 @@ def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
     dprat = 0.0
     ddprat = 0.0
     lam = 0
-    
     k = 0
     
     #set to None because we will define later
@@ -53,16 +65,21 @@ def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
     dx0 = None
     c00 = None
     
+    status = None
     objs = []
+    gradNorms = []
     history = {}
     history['objective'] = []
-    while k < MAX_ITER:
+    history['gradNorm'] = []
+
+    while (k < MAX_ITER):
         k += 1
         xTx = np.dot(x,x)
         cTc = np.dot(c,c)
         
         # Check for convergence
         if (np.sqrt(cTc) <= np.sqrt(n)*ABSTOL + RELTOL*np.sqrt(xTx) ):
+            status = 0 #solved
             break
         
         # Compute step direction
@@ -188,14 +205,17 @@ def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
                     u14 = np.dot(temp2, p)
                     u15 = np.dot(p, y)
                     denom = lam*u14*(u15 + u12) + u13*u13
-                    if denom == 0: 
-                        print('COULD NOT SOLVE')
+                    if denom < np.finfo(float).eps:
+                        status = 3 
+                        print('Search direction is undefined.')
                         break
                     dx = dx + lam*u14*u10*temp1/denom - (u15 + u12)*u11*temp2/denom + u13*u10*temp2/denom + u13*u11*temp1/denom
 
 		# Check that the search direction is a descent direction
         dxTc = np.dot(dx, c)
         if ( dxTc > 0 ):
+            status = 1 
+            print('Search direction is not a descent direction.')
             break
 		# Save the current point
         x0 = x
@@ -225,7 +245,7 @@ def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
         x = x0 + alpha*dx
         c = grad(A, b, lamb, x, cum_part)
         objs.append(objective(A, b, lamb, cum_part,  x, x))
-
+        gradNorms.append(np.linalg.norm(c))
 
     if not QUIET:
         elapsedTime = time.time() - t_start
@@ -233,12 +253,16 @@ def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
         print('n = %d, Iters = %d, invokedCubic = %s\n'% (n, k, inPowell == 1))
     
     if k == MAX_ITER:
-        print('MAX ITERATION REACHED')
+        status = 2 
+        print('Iterations limit reached.')
         
     z = x
     history['objective'] = objs
+    history['gradNorm'] = gradNorms
+    history['status'] = status
     history['time'] = elapsedTime
     history['iters'] = k
+    history['invokedCubic'] = inPowell == 1
 
     return z,history
 

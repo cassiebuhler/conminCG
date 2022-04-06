@@ -1,7 +1,7 @@
-function getPerformanceProfiles(time,iters)
+function getPerformanceProfiles(time,iters,status)
 
-ratios_time = getRatio(time,0); %compute ratio for performance profile
-ratios_iters = getRatio(iters(:,1:2),1);%exclude admm from iterations pp
+ratios_time = getRatio(time,status); %compute ratio for performance profile
+ratios_iters = getRatio(iters(:,1:2),status);%exclude admm from iterations pp
 
 ppIters_cgNoCubic = performanceProf(ratios_iters(:,1));
 ppIters_cgCubic = performanceProf(ratios_iters(:,2));
@@ -34,13 +34,10 @@ ylim([0,1.05])
 
 end
 
-function ratios = getRatio(vec, isIter)
+function ratios = getRatio(vec, status)
 best = min(vec,[],2);
 ratios = vec./best; %compute ratios
-maxIter = 1000;
-if isIter
-    ratios(vec == maxIter) = NaN; %if it doesn't solve, set ratio to nan
-end
+ratios(status ~= 0) = NaN; %if it doesn't solve, set ratio to nan
 end
 
 function performanceData = performanceProf(ratios) %compute performance prof

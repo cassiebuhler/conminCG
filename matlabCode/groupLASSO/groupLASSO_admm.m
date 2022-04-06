@@ -14,8 +14,9 @@ function [z, history] = groupLASSO_admm(A, b, lambda, p, rho, alpha)
 % The solution is returned in the vector x.
 %
 % history is a structure that contains the objective value, the primal and
-% dual residual norms, and the tolerances for the primal and dual residual
-% norms at each iteration.
+% dual residual norms, the tolerances for the primal and dual residual
+% norms at each iteration, and solution status (0 = solved, 2 = Iterations limit reached)
+%
 %
 % rho is the augmented Lagrangian parameter.
 %
@@ -51,6 +52,7 @@ u = zeros(n,1);
 % pre-factor
 [L U] = factor(A, rho);
 
+status = 0;
 
 for k = 1:MAX_ITER
     
@@ -90,7 +92,8 @@ for k = 1:MAX_ITER
     
 end
 if k == MAX_ITER
-    fprintf('REACHED MAX ITERATIONS\n')
+    status = 2;
+    fprintf('Interations limit reached.\n')
 end
 
 if ~QUIET
@@ -101,6 +104,7 @@ end
 
 history.time = elapsedTime;
 history.iters = k;
+history.status = status;
 end
 
 function p = objective(A, b, lambda, cum_part, x, z)
