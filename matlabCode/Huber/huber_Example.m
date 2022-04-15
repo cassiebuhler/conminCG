@@ -28,6 +28,7 @@ rho = 1.0; %augmented Lagrangian parameter
 time = zeros(numProbs,3);
 iters = zeros(numProbs,3);
 status = zeros(numProbs,3);
+inCubic = zeros(numProbs,2);
 for rr=1:numProbs
     fprintf("Problem %d\n", rr);
     x0 = randn(n,1);
@@ -55,10 +56,13 @@ for rr=1:numProbs
             time(rr,:) = [history1.time, history2.time, history3.time]; %saving time and iter per problem for performance profiles
             iters(rr,:) = [history1.iters, history2.iters, history3.iters];
             status(rr,:) = [history1.status, history2.status, history3.status];
+            inCubic(rr,:) = [history1.powellRestart, history2.invokedCubic];
     end
     fprintf([repmat('-',1,60),'\n']);
     
 end
 if model == 4 && perfProf == true
-    getPerformanceProfiles(time,iters,status)
+    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked
+    getPerformanceProfiles(time,iters,status) %performance profile for all 3
+    
 end

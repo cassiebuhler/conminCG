@@ -13,9 +13,9 @@ names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION","ADMM"
 % Generate problem data
 rng('default') %set seed
 m = 100000;       % amount of data
-K = 4;        % number of blocks
-numProbs = 50; %num problems
-upper = 2000; % partition upperbound. randomly selects number between 1 and this number
+N = 4;        % number of blocks
+numProbs = 100; %num problems
+K = 2000; % partition upperbound. randomly selects number between 1 and this number
 
 if model ~= 4
     fprintf([repmat('-',1,60),'\n']);
@@ -28,10 +28,10 @@ rho = 1.0; %augmented Lagrangian parameter
 time = zeros(numProbs,3);
 iters = zeros(numProbs,3);
 status = zeros(numProbs,3);
-invokedCubic = zeros(numProbs,2);
+inCubic = zeros(numProbs,2);
 for rr = 1:numProbs
     fprintf("Problem %d\n", rr);
-    partition = randi(upper, [K 1]);
+    partition = randi(K, [N 1]);
     
     n = sum(partition); % number of features
     p = 100/n;          % sparsity density
@@ -40,7 +40,7 @@ for rr = 1:numProbs
     x = zeros(n,1);
     start_ind = 1;
     cum_part = cumsum(partition);
-    for i = 1:K
+    for i = 1:N
         x(start_ind:cum_part(i)) = 0;
         if( rand() < p)
             % fill nonzeros
@@ -58,10 +58,10 @@ for rr = 1:numProbs
     % generate measurement b with noise
     b = A*x + sqrt(0.001)*randn(m,1);
     
-    lambdas = zeros(1,K);
+    lambdas = zeros(1,N);
     % lambda max
     start_ind = 1;
-    for i = 1:K
+    for i = 1:N
         sel = start_ind:cum_part(i);
         lambdas(i) = norm(A(:,sel)'*b);
         start_ind = cum_part(i) + 1;
@@ -69,7 +69,7 @@ for rr = 1:numProbs
     lambda_max = max(lambdas);
     % regularization parameter
     lambda = 0.01*lambda_max;
-
+    
     xtrue = x;   % save solution
     % Solve problem
     switch model
@@ -90,15 +90,12 @@ for rr = 1:numProbs
             time(rr,:) = [history1.time, history2.time, history3.time]; %saving time and iterations per problem for performance profiles
             iters(rr,:) = [history1.iters, history2.iters, history3.iters];
             status(rr,:) = [history1.status, history2.status, history3.status];
-            invokedCubic(rr,:) = [history1.powellRestart, history2.invokedCubic];
+            inCubic(rr,:) = [history1.powellRestart, history2.invokedCubic];
     end
     fprintf([repmat('-',1,60),'\n']);
 end
 
 if model == 4 && perfProf == true
-    mask = (invokedCubic(:,1) == 1) & (invokedCubic(:,2) == 1); 
-
-    getPerformanceProfiles(time,iters,status)
-    getPerformanceProfiles(time(mask,:),iters(mask,:),status(mask,:))
-
+    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked
+    getPerformanceProfiles(time,iters,status) %performance profile for all 3
 end

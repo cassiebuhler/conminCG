@@ -4,7 +4,7 @@
 % This code generates random problems that are solved with Conjugate
 % Gradient Method (CGM) with and without Cubic Regularization.
 % We also include Boyd's ADMM for comparison.
-diary groupLASSO_output.txt 
+diary groupLASSO_output.txt
 
 % Select which model to run
 model = 4; % 1 = CG without Cubic Reg, 2 = CG with cubic Reg, 3 = ADMM, 4= RUN ALL MODELS
@@ -78,7 +78,7 @@ for j = 1:numCases
         end
         lambda_max = max(lambdas);
         % regularization parameter
-        lambda = 0.01*lambda_max;        
+        lambda = 0.01*lambda_max;
         xtrue = x;   % save solution
         % Solve problem
         switch model
@@ -106,8 +106,8 @@ for j = 1:numCases
     end
 end
 if model == 4 && perfProf == true
-    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked 
-    getPerformanceProfiles(time,iters,status) %performance profile for all 3 
+    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked
+    getPerformanceProfiles(time,iters,status) %performance profile for all 3
     
 end
 

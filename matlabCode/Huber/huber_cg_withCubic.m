@@ -4,7 +4,7 @@ function [z, history] = huber_cg_withCubic(A, b, alpha)
 
 % Solves the following problem via CG with cubic regularization:
 %
-%   minimize h( Az-b ) where h is the Huber loss funciton
+%   minimize h( Az-b ) where h is the Huber loss function
 % The solution is returned in the vector z.
 %
 % ﻿history is a struct that contains the objective values, l2 norm of gradients, time elapsed,

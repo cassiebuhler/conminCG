@@ -5,7 +5,7 @@
 % Gradient Method (CGM) with and without Cubic Regularization.
 % We also include Boyd's ADMM for comparison.
 
-diary huber_output.txt 
+diary huber_output.txt
 
 % Select which model to run
 model = 4; % 1 = CG without Cubic Reg, 2 = CG with cubic Reg, 3 = ADMM, 4 = ALL MODELS
@@ -27,7 +27,6 @@ inCubic = zeros(numProbs*numCases,2);
 for i = 1:numCases
     m = ms(i);        % number of examples
     n = ns(i);       % number of features
-    
     
     if model ~= 4
         fprintf([repmat('-',1,40),'\n']);
@@ -71,15 +70,15 @@ for i = 1:numCases
     end
 end
 if model == 4 && perfProf == true
-    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked 
-    getPerformanceProfiles(time,iters,status) %performance profile for all 3 
+    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked
+    getPerformanceProfiles(time,iters,status) %performance profile for all 3
     
 end
-% save results 
+% save results
 
 % writetable(array2table(time,'VariableNames',{'NoCubic','WithCubic','ADMM'}),'huber_time.csv')
 % writetable(array2table(iters,'VariableNames',{'NoCubic','WithCubic','ADMM'}),'huber_iters.csv')
 % writetable(array2table(status,'VariableNames',{'NoCubic','WithCubic','ADMM'}),'huber_status.csv')
 % writetable(array2table(inCubic,'VariableNames',{'NoCubic','WithCubic'}),'huber_inCubic.csv')
 
-diary off 
+diary off
