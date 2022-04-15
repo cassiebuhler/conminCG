@@ -15,7 +15,7 @@ Variables can be modified in *huber_Example.m* file. This is the driver code.
 
 Depending on the solver you pick, it will call *huber_cg_withCubic.m*, *huber_cg_noCub.m*, and/or *huber_admm.m*. The latter is the code downloaded from Boyd's website linked above. 
 
-To reproduce results of our paper, *huber_Example_moreCases.m* runs 4 cases of varying (m,n) sizes. This example also calls *getPerformanceProfile_invokeCubic.m*, which displays the results only where cubic regularization was invoked.  
+To reproduce results of our paper, *huber_Example_moreCases.m* runs 4 cases of varying (m,n) sizes.   
 
 1. **MODIFY SOLVER**
 
@@ -46,7 +46,7 @@ model = 4;
 perfProf = true;
 ```
 
-
+This calls *getPerformanceProfile_invokeCubic.m*, which displays the results only where cubic regularization was invoked and *getPerformanceProfile.m* which displays results for all instances. 
 
 ## CONTACT 
 
