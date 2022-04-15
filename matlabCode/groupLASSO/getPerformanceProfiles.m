@@ -1,7 +1,7 @@
 function getPerformanceProfiles(time,iters,status)
 
 ratios_time = getRatio(time,status); %compute ratio for performance profile
-ratios_iters = getRatio(iters(:,1:2),status);%exclude admm from iterations pp
+ratios_iters = getRatio(iters(:,1:2),status(:,1:2));%exclude admm from iterations pp
 
 ppIters_cgNoCubic = performanceProf(ratios_iters(:,1));
 ppIters_cgCubic = performanceProf(ratios_iters(:,2));

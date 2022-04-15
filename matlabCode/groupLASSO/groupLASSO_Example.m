@@ -12,10 +12,10 @@ names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION","ADMM"
 
 % Generate problem data
 rng('default') %set seed
-m = 1500;       % amount of data
+m = 100000;       % amount of data
 K = 4;        % number of blocks
-numProbs = 100; %num problems
-upper = 1000; % partition upperbound. randomly selects number between 1 and this number
+numProbs = 50; %num problems
+upper = 2000; % partition upperbound. randomly selects number between 1 and this number
 
 if model ~= 4
     fprintf([repmat('-',1,60),'\n']);
@@ -28,7 +28,7 @@ rho = 1.0; %augmented Lagrangian parameter
 time = zeros(numProbs,3);
 iters = zeros(numProbs,3);
 status = zeros(numProbs,3);
-
+invokedCubic = zeros(numProbs,2);
 for rr = 1:numProbs
     fprintf("Problem %d\n", rr);
     partition = randi(upper, [K 1]);
@@ -90,11 +90,15 @@ for rr = 1:numProbs
             time(rr,:) = [history1.time, history2.time, history3.time]; %saving time and iterations per problem for performance profiles
             iters(rr,:) = [history1.iters, history2.iters, history3.iters];
             status(rr,:) = [history1.status, history2.status, history3.status];
-
+            invokedCubic(rr,:) = [history1.powellRestart, history2.invokedCubic];
     end
     fprintf([repmat('-',1,60),'\n']);
 end
 
 if model == 4 && perfProf == true
+    mask = (invokedCubic(:,1) == 1) & (invokedCubic(:,2) == 1); 
+
     getPerformanceProfiles(time,iters,status)
+    getPerformanceProfiles(time(mask,:),iters(mask,:),status(mask,:))
+
 end
