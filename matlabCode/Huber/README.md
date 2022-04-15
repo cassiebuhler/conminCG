@@ -15,7 +15,7 @@ Variables can be modified in *huber_Example.m* file. This is the driver code.
 
 Depending on the solver you pick, it will call *huber_cg_withCubic.m*, *huber_cg_noCub.m*, and/or *huber_admm.m*. The latter is the code downloaded from Boyd's website linked above. 
 
-To reproduce results of our paper, *huber_Example_moreCases.m* runs 4 cases of varying (m,n) sizes. 
+To reproduce results of our paper, *huber_Example_moreCases.m* runs 4 cases of varying (m,n) sizes. This example also calls *getPerformanceProfile_invokeCubic.m*, which displays the results only where cubic regularization was invoked.  
 
 1. **MODIFY SOLVER**
 
@@ -39,7 +39,7 @@ The model option be set to integers from 1 to 4 to control the optimizer used:
 
 - `perfProfile`: Toggle between true and false to display a performance profile of the results.
 
-To output a performance profile (using getPerformanceProfiles.m) for number of iterations and elapsed time:
+To output a performance profile for number of iterations and elapsed time:
 
 ```matlab
 model = 4; 
