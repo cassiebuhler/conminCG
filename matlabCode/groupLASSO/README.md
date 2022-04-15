@@ -6,37 +6,45 @@
 
 ## WHAT THE CODE DOES 
 
-This code generates random problems that are solved with Conjugate Gradient Method (CGM) with and without Cubic Regularization.
-We also include Boyd's ADMM for comparison.
+This code solves group LASSO problems with Conjugate Gradient Method (CGM) with and without Cubic Regularization.
+We also include Boyd's ADMM for comparison. The data is randomly generated. 
 
 ## HOW TO USE IT
+Variables can be modified in *groupLASSO_Example.m* file. This is the driver code.
 
-The driver code is the file *groupLASSO_Example.m*. **You will only need to modify variables inside *groupLASSO_Example.m* file.** Depending on the solver you pick, it will call groupLASSO_cg_withCubic.m, groupLASSO_cg_noCub.m, and/or groupLASSO_admm.m. The latter is the same code downloaded from Boyd's website linked above. 
+Depending on the solver you pick, it will call groupLASSO_cg_withCubic.m, groupLASSO_cg_noCub.m, and/or groupLASSO_admm.m. The latter is the same code downloaded from Boyd's website linked above. 
+
+To reproduce results of our paper, *groupLASSO_Example_moreCases.m* runs 6 cases of varying (m,N,K) sizes. 
 
 1. **MODIFY SOLVER**
 
-There are 3 solvers that can be called by the toggling the variable called *model*. 
+The model option be set to integers from 1 to 4 to control the optimizer used:
 
-*model = 1;* -> solve using CG without cubic regularization 
-
-*model = 2;* -> solve using CG with cubic regularization 
-
-*model = 3;* -> solve using ADMM (Boyd's code)
-
-*model = 4;* -> solve using all the above. In other words, solve each problem 3 times, using a different solver each time. 
+- `model = 1` CG without cubic regularization 
+- `model = 2` CG with cubic regularization 
+- `model = 3` ADMM (Boyd's code)
+- `model = 4` solve using all the above. In other words, solve each problem 3 times, using a different solver each time. 
 
 2. **MODIFY PROBLEM SIZE**
 
-To change the problem size, you can modify *m* and *K*. 
-
+ - `m`: Number of rows in feature matrix
+ - `N`: Number of blocks
+ - `K`: Size of each group as uniformly distributed between 1 and this parameter. 
 3. **MODIFY NUMBER OF PROBLEMS**
 
-We run the problem 100 times by using a for loop. To change the number of problems, modify the numProbs variable. 
+ - `numProbs`: Number of randomly generated problems 
  
 4. **VIEW PERFORMANCE PROFILES**
 
-If all the models are ran (model = 4), and perfProfile = true, the code will output a performance profile (using getPerformanceProfiles.m) for number of iterations and elapsed time. 
+- `perfProfile`: Toggle between true and false to display a performance profile of the results.
 
+To output a performance profile for number of iterations and elapsed time:
+
+```matlab
+model = 4; 
+perfProf = true;
+```
+This calls *getPerformanceProfile_invokeCubic.m*, which displays the results only where cubic regularization was invoked and *getPerformanceProfile.m* which displays results for all instances.  
 
 ## CONTACT 
 
