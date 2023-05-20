@@ -13,16 +13,14 @@ import random
 import math
 from scipy.sparse import spdiags
 import numpy as np
-from groupLASSO_cg_withCubic import groupLASSO_cg_withCubic
-from groupLASSO_cg_noCubic import groupLASSO_cg_noCubic
-from getPerformanceProfiles import getPerformanceProfiles
+from groupLASSO_cg_hybridCubic import groupLASSO_cg_hybridCubic
+from groupLASSO_cg_powellRestarts import groupLASSO_cg_powellRestarts
 
 random.seed(1)
 np.random.seed(1)
 
 model = 2 # 0 = CG without Cubic Reg, 1 = CG with cubic Reg, 2 = BOTH MODELS
-perfProf = True # outputs a performance profile comparing two methods. 
-names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION"]
+names = ["CG WITH POWELL RESTARTS","CG WITH HYBRID CUBIC REGULARIZATION"]
 
 
 # Group lasso example with random data
@@ -81,20 +79,17 @@ for rr in range(numProbs):
     xtrue = x   # save solution
     #Solve problem
     if model == 0:
-        x1, history1 = groupLASSO_cg_noCubic(A, b, lamb, partition, alpha)
+        x1, history1 = groupLASSO_cg_powellRestarts(A, b, lamb, partition, alpha)
     elif model == 1:
-        x2, history2 = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
+        x2, history2 = groupLASSO_cg_hybridCubic(A, b, lamb, partition, alpha)
     else:
         print("-"*40)
         print('--'+names[0]+'--')
-        x1, history1 = groupLASSO_cg_noCubic(A, b, lamb, partition, alpha)
+        x1, history1 = groupLASSO_cg_powellRestarts(A, b, lamb, partition, alpha)
         print('--'+names[1]+'--')
-        x2, history2 = groupLASSO_cg_withCubic(A, b, lamb, partition, alpha)
+        x2, history2 = groupLASSO_cg_hybridCubic(A, b, lamb, partition, alpha)
         time[rr,:] = [history1['time'],history2['time']] #saving time and iterations for performance profiles
         iters[rr,:] = [history1['iters'],history2['iters']]
         status[rr,:] = [history1['status'],history2['status']]
     print("-"*40)
 
-
-if model == 2 and perfProf == True:
-    getPerformanceProfiles(iters,time,status) #output performance profiles

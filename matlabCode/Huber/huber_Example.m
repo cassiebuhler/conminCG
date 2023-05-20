@@ -7,9 +7,8 @@
 
 
 % Select which model to run
-model = 4; % 1 = CG without Cubic Reg, 2 = CG with cubic Reg, 3 = ADMM, 4 = ALL MODELS
-perfProf = true; % outputs a performance profile comparing all methods.
-names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION","ADMM"];
+model = 4; % 1 = CG with Powell Restarts, 2 = CG with Hybrid Cubic Reg, 3 = ADMM, 4= RUN ALL MODELS
+names = ["CG WITH POWELL RESTARTS","CG WITH HYBRID CUBIC REGULARIZATION","ADMM"];
 
 % Generate problem data
 rng('default'); %setting seed
@@ -35,34 +34,32 @@ for rr=1:numProbs
     A = randn(m,n);
     A = A*spdiags(1./sqrt(sum(A.^2))',0,n,n); % normalize columns
     b = A*x0 + sqrt(0.01)*randn(m,1);
-    b = b + 10*sprand(m,1,200/m);      % add sparse, large noise
+    b = b + 10*sparse(m,1,200/m);      % add sparse, large noise
     
     % Solve problem
     switch model
         case 1
-            [x1, history1] = huber_cg_noCubic(A, b, alpha);
+            [x1, history1] = huber_cg_powellRestarts(A, b, alpha);
         case 2
-            [x2, history2] = huber_cg_withCubic(A, b, alpha);
+            [x2, history2] = huber_cg_hybridCubic(A, b, alpha);
         case 3
             [x3, history3] = huber_admm(A, b, rho, alpha); %Boyd's ADMM code
         case 4
             fprintf([repmat('-',1,60),'\n']);
             fprintf("%s\n",join(['--',names(1),'--'],''))
-            [x1, history1] = huber_cg_noCubic(A, b, alpha);
+            [x1, history1] = huber_cg_powellRestarts(A, b, alpha);
+
             fprintf("%s\n",join(['--',names(2),'--'],''))
-            [x2, history2] = huber_cg_withCubic(A, b, alpha);
+            [x2, history2] = huber_cg_hybridCubic(A, b, alpha);
+
             fprintf("%s\n",join(['--',names(3),'--'],''))
             [x3, history3] = huber_admm(A, b, rho, alpha); %Boyd's ADMM code
-            time(rr,:) = [history1.time, history2.time, history3.time]; %saving time and iter per problem for performance profiles
+
+             %saving time and iter per problem
+            time(rr,:) = [history1.time, history2.time, history3.time];
             iters(rr,:) = [history1.iters, history2.iters, history3.iters];
             status(rr,:) = [history1.status, history2.status, history3.status];
             inCubic(rr,:) = [history1.powellRestart, history2.invokedCubic];
     end
     fprintf([repmat('-',1,60),'\n']);
-    
-end
-if model == 4 && perfProf == true
-    getPerformanceProfiles_invokeCubic(time,iters,status,inCubic) %performance profile of both CG's when cubic was invoked
-    getPerformanceProfiles(time,iters,status) %performance profile for all 3
-    
 end

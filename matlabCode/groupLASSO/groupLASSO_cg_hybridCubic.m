@@ -1,9 +1,9 @@
-function [z, history] = groupLASSO_cg_withCubic(A, b, lambda, p, alpha)
+function [z, history] = groupLASSO_cg_hybridCubic(A, b, lambda, p, alpha)
 
 % Code is adapted from group LASSO code by Boyd https://web.stanford.edu/~boyd/papers/admm/
 % Authors: Cassidy Buhler and Hande Benson
 
-% [x, history] = groupLASSO_cg_withCubic(A, b, lambda, p, alpha)
+% [x, history] = groupLASSO_cg_hybridCubic(A, b, lambda, p, alpha)
 %
 % Solves the following problem via Conjugate Gradient WITH
 % Cubic regularization:
@@ -16,7 +16,7 @@ function [z, history] = groupLASSO_cg_withCubic(A, b, lambda, p, alpha)
 % The solution is returned in the vector x.
 %
 % ﻿history is a struct that contains the objective values, l2 norm of gradients, time elapsed,
-% number of iterations, solution status (0 = solved, 1 = Search direction is not descent direction, 
+% number of iterations, solution status (0 = solved, 1 = Search direction is not descent direction,
 % 2 = Iterations limit reached, 3 = search direction is undefined, 4 = Line search failed),
 % and if cubic regularization was invoked (TRUE/FALSE)
 %
@@ -26,11 +26,10 @@ function [z, history] = groupLASSO_cg_withCubic(A, b, lambda, p, alpha)
 
 t_start = tic;
 % Global constants and defaults
-QUIET    = 0;
+QUIET    = 1;
 MAX_ITER = 1000;
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
-
 
 % Data preprocessing
 [~, n] = size(A);
@@ -58,17 +57,26 @@ ddprat = 0.0;
 lam = 0;
 k = 0;
 
+if ~QUIET
+    fprintf("-----------------------------------------------------\n")
+    fprintf("Iter |		Obj Value     	Residual	| P  \n")
+    fprintf("- - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
+end
+
 while (k < MAX_ITER)
     k = k + 1;
     xTx = dot(x,x);
     cTc = dot(c,c);
-    
+
     % Check for convergence
     if ( sqrt(cTc) <= sqrt(n)*ABSTOL + RELTOL*sqrt(xTx) ) % inftol*inftol*max(1.0, xTx) )
         status = 0; %solved
         break;
     end
-    
+    if ~QUIET
+        f = objective(A, b, lambda, cum_part, x, x);
+        fprintf("%4d :\t%14.6e\t %14.6e\t | %d \n", k, f, sqrt(cTc/max(1.0, xTx)),pertcnt);
+    end
     % Compute step direction
     if ( restart == false )
         dx = -c;
@@ -81,11 +89,11 @@ while (k < MAX_ITER)
                 restart = false;
                 pertcnt = 0;
             else
-                
+
                 if (nrst == 0)
                     nrst = n;
                 end
-                
+
                 inPowell = true;
                 if ( lam == 0.0 )
                     if ( dprat0 ~= 0.0 )
@@ -144,7 +152,7 @@ while (k < MAX_ITER)
             prat0 = 0.0;
             pertcnt = 0;
         end
-        
+
         % If performing a restart, update the Beale restart vectors
         if ( nrst == n )
             pt = alpha*dx;
@@ -153,16 +161,16 @@ while (k < MAX_ITER)
             cTyt = dot(pt,yt);
             cTct = dot(pt,pt);
         end
-        
+
         p = alpha*dx;
         y = c - c0;
         pTc = dot(pt,c);
         yTc = dot(yt,c);
-        
+
         u1 = -pTc/ytTyt;
         u2 = 2*pTc/cTyt - yTc/ytTyt;
         u3 = cTyt/ytTyt;
-        
+
         if ( pertcnt == 0 )
             dx = -u3*c - u1*yt - u2*pt;
         else
@@ -171,14 +179,14 @@ while (k < MAX_ITER)
             b1 = (-lam*cTyt - 2*ytTyt)*ytTyt/(cTyt*cTct*bracket*(lam*cTyt + ytTyt));
             d = lam/(bracket*(lam*cTyt + ytTyt));
             e = ytTyt/(cTct*bracket*(lam*cTyt + ytTyt));
-            
+
             bracket = lam*lam+lam/u3+lam*ytTyt/cTyt+cTyt/(u3*cTct);
             denom = u3*u3*cTct*lam*bracket + u3*cTct*bracket;
             d = u3*u3*lam*(cTct/cTyt) / denom;
-            
+
             dx = a*c + b1*pTc*pt + d*yTc*yt + e*yTc*pt + e*pTc*yt;
         end
-        
+
         if ( nrst ~= n )
             if ( pertcnt == 0 )
                 u1 = -dot(y,pt)/ytTyt;
@@ -186,7 +194,7 @@ while (k < MAX_ITER)
                 u3 = dot(p,y);
                 temp = cTyt/ytTyt*y + u1*yt + u2*pt;
                 u4 = dot(temp, y);
-                
+
                 u1 = -dot(p,c)/u3;
                 u2 = (u4/u3 + 1)*dot(p,c)/u3 - dot(c,temp)/u3;
                 dx = dx - u1*temp - u2*p;
@@ -194,7 +202,7 @@ while (k < MAX_ITER)
                 ptTy = dot(pt,y);
                 ytTy = dot(yt,y);
                 temp1 = -(a*y + b1*ptTy*pt + d*ytTy*yt + e*ytTy*pt + e*ptTy*yt);
-                
+
                 a2 = 1.0/(lam*u3+1.0);
                 b2 = lam*b1;
                 d2 = lam*d;
@@ -202,18 +210,19 @@ while (k < MAX_ITER)
                 ptTp = dot(pt,p);
                 ytTp = dot(yt,p);
                 temp2 = a2*p + b2*ptTp*pt + d2*ytTp*yt + e2*ytTp*pt + e2*ptTp*yt;
-                
+
                 u10 = dot(temp1, c);
                 u11 = dot(temp2, c);
                 u12 = dot(temp1, y);
                 u13 = dot(temp2, y);
                 u14 = dot(temp2, p);
                 u15 = dot(p, y);
-                
+
                 denom = lam*u14*(u15 + u12) + u13*u13;
                 if denom < eps
                     status = 3;
                     fprintf("Search direction is undefined.\n")
+                    break;
                 end
                 dx = dx + lambda*u14*u10*temp1/denom - ...
                     (u15 + u12)*u11*temp2/denom + ...
@@ -221,7 +230,7 @@ while (k < MAX_ITER)
             end
         end
     end
-    
+
     % Check that the search direction is a descent direction
     dxTc = dot(dx, c);
     if ( dxTc > 0 )
@@ -229,7 +238,7 @@ while (k < MAX_ITER)
         fprintf("CUBIT: Search direction is not a descent direction.\n");
         break;
     end
-    
+
     % Save the current point
     x0 = x;
     if (exist('c0','var'))
@@ -238,7 +247,7 @@ while (k < MAX_ITER)
     c0 = c;
     alpha0 = alpha;
     restart0 = restart;
-    
+
     if ( restart == 0 )
         restart = 1;
     else
@@ -250,17 +259,17 @@ while (k < MAX_ITER)
             restart = 2;
         end
     end
-    
-    
+
+
     afind = @(a) objective(A, b, lambda, cum_part,  x + a*dx, x);
-    [alpha,~,exitflag] = fminbnd(afind, 0, 10);
-    
+    [alpha,~,exitflag] = fminbnd(afind, 0, 10); % chose upperbound to balance speed and optimality
+
     if (exitflag ~= 1)
         status = 4;
         fprintf("Line search failed.\n");
         break;
-    end    
-    
+    end
+
     % Take the step and update function value and gradient
     x = x0 + alpha*dx;
     c = grad(A, b, lambda, x, cum_part);
@@ -271,12 +280,11 @@ if k == MAX_ITER
     status = 2;
     fprintf('Interations limit reached.\n')
 end
-if ~QUIET
-    elapsedTime = toc(t_start);
-    fprintf('Elapsed time is %f seconds.\n', elapsedTime);
-    fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
-    
-end
+
+elapsedTime = toc(t_start);
+fprintf('Elapsed time is %f seconds.\n', elapsedTime);
+fprintf('Iters = %d, invokedCubicReg = %s\n', k, string(inPowell == 1));
+
 z = x;
 
 history.time = elapsedTime;

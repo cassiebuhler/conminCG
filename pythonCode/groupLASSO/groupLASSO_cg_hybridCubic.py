@@ -21,7 +21,7 @@ import numpy as np
 import time as time
 from scipy import optimize
 
-def groupLASSO_cg_withCubic(A, b, lamb, p, alpha):
+def groupLASSO_cg_hybridCubic(A, b, lamb, p, alpha):
     #initialize
     t_start = time.time()
     QUIET    = 0

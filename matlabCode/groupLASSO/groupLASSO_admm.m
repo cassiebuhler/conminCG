@@ -29,7 +29,7 @@ function [z, history] = groupLASSO_admm(A, b, lambda, p, rho, alpha)
 %
 
 t_start = tic;
-QUIET    = 0;
+QUIET    = 1;
 MAX_ITER = 1000;
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
@@ -49,8 +49,17 @@ x = zeros(n,1);
 z = zeros(n,1);
 u = zeros(n,1);
 
+% x = 0.1*ones(n,1);
+% z = 0.1*ones(n,1);
+% u = 0.1*ones(n,1);
+
+
 % pre-factor
 [L U] = factor(A, rho);
+if ~QUIET
+    fprintf('%3s\t%10s\t%10s\t%10s\t%10s\t%10s\n', 'iter', ...
+      'r norm', 'eps pri', 's norm', 'eps dual', 'objective');
+end
 
 status = 0;
 
@@ -83,7 +92,12 @@ for k = 1:MAX_ITER
     
     history.eps_pri(k) = sqrt(n)*ABSTOL + RELTOL*max(norm(x), norm(-z));
     history.eps_dual(k)= sqrt(n)*ABSTOL + RELTOL*norm(rho*u);
-    
+
+    if ~QUIET
+        fprintf('%3d\t%10.4f\t%10.4f\t%10.4f\t%10.4f\t%10.2f\n', k, ...
+            history.r_norm(k), history.eps_pri(k), ...
+            history.s_norm(k), history.eps_dual(k), history.objval(k));
+    end
     
     if (history.r_norm(k) < history.eps_pri(k) && ...
             history.s_norm(k) < history.eps_dual(k))
@@ -96,11 +110,9 @@ if k == MAX_ITER
     fprintf('Interations limit reached.\n')
 end
 
-if ~QUIET
-    elapsedTime = toc(t_start);
-    fprintf('Elapsed time is %f seconds.\n', elapsedTime);
-    fprintf('Iters = %d\n', k);
-end
+elapsedTime = toc(t_start);
+fprintf('Elapsed time is %f seconds.\n', elapsedTime);
+fprintf('Iters = %d\n', k);
 
 history.time = elapsedTime;
 history.iters = k;

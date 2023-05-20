@@ -1,4 +1,4 @@
-function [z, history] = huber_cg_noCubic(A, b, alpha)
+function [z, history] = huber_cg_powellRestarts(A, b, alpha)
 
 % Code is adapted from Huber fitting code by Boyd https://web.stanford.edu/~boyd/papers/admm/
 % Authors: Cassidy Buhler and Hande Benson
@@ -6,9 +6,9 @@ function [z, history] = huber_cg_noCubic(A, b, alpha)
 % This code minimizes the Huber loss function using Conjugate Gradient
 % WITHOUT Cubic regularization.
 %
-% [z, history] =  huber_cg_withCubic(A, b, alpha);
+% [z, history] =  huber_cg_powellRestarts(A, b, alpha);
 %
-% Solves the following problem via CG with cubic regularization:
+% Solves the following problem via CG without cubic regularization:
 %
 %   minimize h( Az-b ) where h is the Huber loss function
 % The solution is returned in the vector z.
@@ -25,7 +25,7 @@ function [z, history] = huber_cg_noCubic(A, b, alpha)
 t_start = tic;
 
 % Global constants and defaults
-QUIET    = 0;
+QUIET = 1; % 0 = NOT QUIET, 1 = QUIET 
 MAX_ITER = 1000;
 ABSTOL   = 1e-4;
 RELTOL   = 1e-2;
@@ -40,7 +40,11 @@ c = grad(A, b, x, m, 1.0);
 nrst = n;
 restart = false;
 inPowell = false;
-
+if ~QUIET
+    fprintf("-----------------------------------------------------\n")
+    fprintf("Iter |		Obj Value     	Residual	| \n")
+    fprintf("- - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
+end
 for k = 1:MAX_ITER
     
     xTx = dot(x,x);
@@ -51,7 +55,10 @@ for k = 1:MAX_ITER
         status = 0;
         break;
     end
-    
+    if ~QUIET
+        f = objective(A, b, x);
+        fprintf("%4d :\t%14.6e\t %14.6e\t |\n", k, f, sqrt(cTc/max(1.0, xTx)));
+    end 
     
     % Compute step direction
     if ( restart == false )
@@ -136,12 +143,11 @@ if k == MAX_ITER
     status = 2;
     fprintf('Interations limit reached.\n')
 end
-if ~QUIET
-    elapsedTime = toc(t_start);
-    fprintf('Elapsed time is %f seconds.\n', elapsedTime);
-    fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));
-    
-end
+
+elapsedTime = toc(t_start);
+fprintf('Elapsed time is %f seconds.\n', elapsedTime);
+fprintf('Iters = %d, PowellRestartNeeded = %s\n', k, string(inPowell == 1));
+
 z = x;
 
 history.time = elapsedTime;

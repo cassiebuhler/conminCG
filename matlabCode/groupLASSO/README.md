@@ -12,7 +12,7 @@ We also include Boyd's ADMM for comparison. The data is randomly generated.
 ## HOW TO USE IT
 Variables can be modified in *groupLASSO_Example.m* file. This is the driver code.
 
-Depending on the solver you pick, it will call groupLASSO_cg_withCubic.m, groupLASSO_cg_noCub.m, and/or groupLASSO_admm.m. The latter is the same code downloaded from Boyd's website linked above. 
+Depending on the solver you pick, it will call groupLASSO_cg_hybridCubic.m, groupLASSO_cg_powellRestarts.m, and/or groupLASSO_admm.m. The latter is the same code downloaded from Boyd's website linked above. 
 
 To reproduce results of our paper, *groupLASSO_Example_moreCases.m* runs 6 cases of varying (m,N,K) sizes. 
 
@@ -30,21 +30,10 @@ The model option be set to integers from 1 to 4 to control the optimizer used:
  - `m`: Number of rows in feature matrix
  - `N`: Number of blocks
  - `K`: Size of each group as uniformly distributed between 1 and this parameter. 
+
 3. **MODIFY NUMBER OF PROBLEMS**
 
  - `numProbs`: Number of randomly generated problems 
- 
-4. **VIEW PERFORMANCE PROFILES**
-
-- `perfProfile`: Toggle between true and false to display a performance profile of the results.
-
-To output a performance profile for number of iterations and elapsed time:
-
-```matlab
-model = 4; 
-perfProf = true;
-```
-This calls *getPerformanceProfile_invokeCubic.m*, which displays the results only where cubic regularization was invoked and *getPerformanceProfile.m* which displays results for all instances.  
 
 ## CONTACT 
 

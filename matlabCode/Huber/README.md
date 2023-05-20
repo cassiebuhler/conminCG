@@ -13,7 +13,7 @@ We also include Boyd's ADMM for comparison. The data is randomly generated.
 
 Variables can be modified in *huber_Example.m* file. This is the driver code.
 
-Depending on the solver you pick, it will call *huber_cg_withCubic.m*, *huber_cg_noCub.m*, and/or *huber_admm.m*. The latter is the code downloaded from Boyd's website linked above. 
+Depending on the solver you pick, it will call *huber_cg_hybridCubic.m*, *huber_cg_powellRestarts.m*, and/or *huber_admm.m*. The latter is the code downloaded from Boyd's website linked above. 
 
 To reproduce results of our paper, *huber_Example_moreCases.m* runs 4 cases of varying (m,n) sizes.   
 
@@ -34,19 +34,6 @@ The model option be set to integers from 1 to 4 to control the optimizer used:
 3. **MODIFY NUMBER OF PROBLEMS**
 
  - `numProbs`: Number of randomly generated problems 
-
-4. **VIEW PERFORMANCE PROFILES**
-
-- `perfProfile`: Toggle between true and false to display a performance profile of the results.
-
-To output a performance profile for number of iterations and elapsed time:
-
-```matlab
-model = 4; 
-perfProf = true;
-```
-
-This calls *getPerformanceProfile_invokeCubic.m*, which displays the results only where cubic regularization was invoked and *getPerformanceProfile.m* which displays results for all instances. 
 
 ## CONTACT 
 

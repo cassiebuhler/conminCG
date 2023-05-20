@@ -31,11 +31,6 @@ To change the problem size, you can modify *m* and *K*.
 
 We run the problem 100 times by using a for loop. To change the number of problems, modify the numProbs variable. 
 
-4. **VIEW PERFORMANCE PROFILES**
-
-If all the models are ran (model = 2), and perfProfile = true, the code will output a performance profile (using getPerformanceProfiles.py) for number of iterations and elapsed time. 
-
-
 ## CONTACT 
 
 Email: cb3452@drexel.edu 

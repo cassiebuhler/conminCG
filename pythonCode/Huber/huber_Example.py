@@ -13,16 +13,12 @@ from scipy.sparse import spdiags
 import numpy as np
 import scipy.sparse as sparse
 
-from huber_cg_withCubic import huber_cg_withCubic
-from huber_cg_noCubic import huber_cg_noCubic
-from getPerformanceProfiles import getPerformanceProfiles
+from huber_cg_hybridCubic import huber_cg_hybridCubic
+from huber_cg_powellRestarts import huber_cg_powellRestarts
 
 
 model = 2 # 0 = CG without Cubic Reg, 1 = CG with cubic Reg, 2 = BOTH MODELS
-perfProf = True # outputs a performance profile comparing two methods. 
-
-names = ["CG WITHOUT CUBIC REGULARIZATION","CG WITH CUBIC REGULARIZATION"]
-
+names = ["CG WITH POWELL RESTARTS","CG WITH HYBRID CUBIC REGULARIZATION"]
 
 # Generate problem data
 np.random.seed(0)
@@ -54,20 +50,16 @@ for rr in range(numProbs):
     b = b + np.squeeze(noise.toarray())
     # Solve problem
     if model == 0:
-        x, history = huber_cg_noCubic(A, b, alpha)
+        x, history = huber_cg_powellRestarts(A, b, alpha)
     elif model == 1:
-        x, history = huber_cg_withCubic(A, b, alpha)
+        x, history = huber_cg_hybridCubic(A, b, alpha)
     else:
         print("-"*40)
         print('--'+names[0]+'--')
-        x1, history1 = huber_cg_noCubic(A, b, alpha)
+        x1, history1 = huber_cg_powellRestarts(A, b, alpha)
         print('--'+names[1]+'--')
-        x2, history2 = huber_cg_withCubic(A, b, alpha)
+        x2, history2 = huber_cg_hybridCubic(A, b, alpha)
         time[rr,:] = [history1['time'],history2['time']] #saving time and iterations for performance profiles
         iters[rr,:] = [history1['iters'],history2['iters']]
         status[rr,:] = [history1['status'],history2['status']]
     print("-"*40)
-
-if model == 2 and perfProf == True:
-    getPerformanceProfiles(iters,time,status) #output performance profiles
-

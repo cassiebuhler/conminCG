@@ -18,7 +18,7 @@ number of iterations, solution status (0 = solved, 1 = Search direction is not d
 import numpy as np
 import time as time
 from scipy import optimize
-def huber_cg_withCubic(A, b, alpha):
+def huber_cg_hybridCubic(A, b, alpha):
 
     
     #initialize
