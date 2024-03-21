@@ -27,7 +27,7 @@ option solver conmin;
 
 There are several solver options which can be specified using conmin_options inside the AMPL model or at the AMPL prompt:
 ```
-option conmin_options="verbose=2";
+option conmin_options "verbose=2";
 ```
 will set the output level to 2, which means one line per iteration.  The verbose option can be set to any integer from 0 to 5.  
 
