@@ -9,6 +9,8 @@
 
 It solves unconstrained nonlinear optimization problems using the conjugate gradient method.  The problems must be formulated in AMPL, and the user needs to have AMPL installed.
 
+In our paper, we used the AMPL models available [here](https://vanderbei.princeton.edu/ampl/nlmodels/cute/index.html). These have been converted to AMPL from SIF and originated from the [CUTEst repository](https://github.com/ralna/CUTEst).
+
 ## INSTALLATION
 
 The software must be compiled prior to use.  A makefile is provided, and the user should edit the makefile with information on the locations of their AMPL and C libraries.  Once the edits are completed, simply run
