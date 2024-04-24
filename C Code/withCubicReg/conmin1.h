@@ -8,6 +8,7 @@ double *dx; \
 double *x0; \
 int max; \
 double inftol; \
+double ls_inftol; \
 int itnlim; \
 double timlim; \
 int quadratic; \
@@ -40,7 +41,10 @@ double cTct, pTc, yTc, ptTy, ytTy, ptTp, ytTp; \
 double alpha0, lambda0; \
 double *dx0; \
 int restart0; \
-double prat, dprat, olambda, ddprat, oolambda, dprat0, prat0;
+double prat, dprat, olambda, ddprat, oolambda, dprat0, prat0; \
+double *if_x, *if_dx, *if_c0; \
+double if_alpha; \
+int if_restart;
 
 #define	COPYBACK(lp) \
 \

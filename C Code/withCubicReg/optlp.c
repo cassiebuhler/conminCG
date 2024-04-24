@@ -76,6 +76,7 @@ int	solvelp(
 
 	max    	   = lp->max;
 	inftol	   = lp->inftol;
+	ls_inftol  = MIN(inftol, 1e-06);
 	verbose	   = lp->verbose;
 
 	stopping_rule =	lp->stopping_rule;
@@ -116,6 +117,10 @@ int	solvelp(
 	MALLOC( c0,	n,	double );
 	MALLOC( c00,	n,	double );
 	MALLOC( dx0,	n,	double );
+
+	MALLOC( if_x,	n,	double );
+	MALLOC( if_dx,	n,	double );
+	MALLOC( if_c0,	n,	double );
 
 	/*------------------------------------------------------+
 	| initialize parameters.				*/
@@ -169,54 +174,73 @@ restart:
 			for (j = 0; j<n; j++) dx[j] = -c[j];
 		} else {
 			/* Test to see if the Powell restart criterion holds */
-printf("%14.6e \t %14.6e\n", lambda, ABS(dotprod(c, c0, n)/cTc));
+			printf("%14.6e \t %14.6e\n", lambda, ABS(dotprod(c, c0, n)/cTc));
 			if ( ABS(dotprod(c, c0, n)/cTc) > 0.2 && restart0 > 1 && nrst != n ) { 
-/*
-			if ( ABS(dotprod(c, c0, n)/(sqrt(dotprod(c,c,n))*sqrt(dotprod(c0,c0,n)))) > 0.5 && restart0 > 1 && nrst != n ) {
-*/
-printf("Powell restart\n"); 
-/*
-				nrst = n;
-*/
-
-if ( lambda == 0.0 ) {
-				if ( dprat0 != 0.0 ) ddprat = ( ABS(dotprod(c, c0, n)/cTc) - 2*prat + prat0 ) / ( (lambda - olambda)*(oolambda-olambda) );
-				/* if ( dprat0 != 0.0 ) ddprat = ( dprat - dprat0 ) / (lambda/2.0 - oolambda/2.0); */
-				dprat0 = dprat;
-				if ( lambda > 0 ) dprat = ( ABS(dotprod(c, c0, n)/cTc) - prat ) / ( lambda - olambda );
-				prat0 = prat;
-				prat = ABS(dotprod(c, c0, n)/cTc);
-				alpha = alpha0;
-				restart = restart0;
-				for ( j=0; j<n; j++) x[j] = x0[j];
-				for ( j=0; j<n; j++) dx[j] = dx0[j];
-				for ( j=0; j<n; j++) c0[j] = c00[j];
-				nerror = h_update(lp);
-				COPYBACK(lp);
-				xTx = dotprod(x, x, n);
-				cTc = dotprod(c, c, n);
-				oolambda = olambda;
-				olambda = lambda;
-				if ( lambda == 0.0 ) {
-					lambda = prat/0.2; 
-				} else {
-					if ( pertcnt <= 2 ) {
-						lambda = olambda - prat/dprat;
-					} else {
-						if ( dprat*dprat - 2*ddprat*prat > 0 && ABS(ddprat) > 1e-8 ) {
-							lambda = olambda + MAX( (-dprat + sqrt(dprat*dprat - 2*ddprat*prat))/ddprat,
-										(-dprat - sqrt(dprat*dprat - 2*ddprat*prat))/ddprat ); 
-						} else {
-							lambda = 2*olambda;
-						}
+				if ( pertcnt > lp->pertlim ) { /* We have done too many updates to lambda.  Do a Powell restart and continue. */
+					printf("Reached the update limit U.\n");
+					alpha = if_alpha;
+					restart = if_restart;
+					for ( j=0; j<n; j++) x[j] = if_x[j];
+					for ( j=0; j<n; j++) dx[j] = if_dx[j];
+					for ( j=0; j<n; j++) c0[j] = if_c0[j];
+					nerror = h_update(lp);
+					COPYBACK(lp);
+					xTx = dotprod(x, x, n);
+					cTc = dotprod(c, c, n);
+					nrst = n;
+					lambda = 0.0;
+					dprat = 0.0;
+					dprat0 = 0.0;
+					prat0 = 0.0;
+					if ( verbose > 1 ) {
+						printf("%4d :\t%14.6e\t %14.6e\t | %d \n", iter, f, sqrt(cTc/MAX(1.0, xTx)), pertcnt);
 					}
-					if ( lambda < 1e-12 ) lambda = 2*olambda;
+					pertcnt = 0;
+				} else {
+					printf("Powell restart\n"); 
+					if ( lambda == 0.0 ) {
+						if_alpha = alpha;
+						if_restart = restart;
+						for ( j=0; j<n; j++) if_x[j] = x[j];
+						for ( j=0; j<n; j++) if_dx[j] = dx[j];
+						for ( j=0; j<n; j++) if_c0[j] = c0[j];
+						if ( dprat0 != 0.0 ) ddprat = ( ABS(dotprod(c, c0, n)/cTc) - 2*prat + prat0 ) / ( (lambda - olambda)*(oolambda-olambda) );
+						dprat0 = dprat;
+						if ( lambda > 0 ) dprat = ( ABS(dotprod(c, c0, n)/cTc) - prat ) / ( lambda - olambda );
+						prat0 = prat;
+						prat = ABS(dotprod(c, c0, n)/cTc);
+						alpha = alpha0;
+						restart = restart0;
+						for ( j=0; j<n; j++) x[j] = x0[j];
+						for ( j=0; j<n; j++) dx[j] = dx0[j];
+						for ( j=0; j<n; j++) c0[j] = c00[j];
+						nerror = h_update(lp);
+						COPYBACK(lp);
+						xTx = dotprod(x, x, n);
+						cTc = dotprod(c, c, n);
+						oolambda = olambda;
+						olambda = lambda;
+						if ( lambda == 0.0 ) {
+							lambda = prat/0.2; 
+						} else {
+							if ( pertcnt <= 2 ) {
+								lambda = olambda - prat/dprat;
+							} else {
+								if ( dprat*dprat - 2*ddprat*prat > 0 && ABS(ddprat) > 1e-8 ) {
+									lambda = olambda + MAX( (-dprat + sqrt(dprat*dprat - 2*ddprat*prat))/ddprat,
+												(-dprat - sqrt(dprat*dprat - 2*ddprat*prat))/ddprat ); 
+								} else {
+									lambda = 2*olambda;
+								}
+							}
+							if ( lambda < 1e-12 ) lambda = 2*olambda;
+						}
+					} else {
+						lambda = 2*lambda;
+					}
+					pertcnt++;
+					iter--;
 				}
-} else {
-	lambda = 2*lambda;
-}
-				pertcnt++;
-				iter--;
 			} else {
 				for ( j=0; j<n; j++ ) dx0[j] = dx[j];
 				lambda = 0.0;
@@ -368,8 +392,6 @@ if ( lambda == 0.0 ) {
 			tried++;
 			dalpha = dotprod(c, dx, n);
 
-/* HANDE: Changed the threshold for dalpha to -1e-12 from -1e-16 to force the issue.  The signs of dalpha and dp prevent us from 
- * going to the correct part of the bounding process later.  The signs come out to be the same, even though we have bracketed the minimum. */
 			if ( f > (1.0+1e-12)*fmin && dalpha < -1e-12 ) {
 			/* If the function value is higher at alpha, but we have negative slope,
 			 * it means we've already passed the minimum and gone too far.  Search for the min
@@ -383,8 +405,6 @@ if ( lambda == 0.0 ) {
 
 			interp = FALSE;				
 
-/* HANDE: What happens when dalpha and dg are so small that we keep on having problems? Clearly, we stop with errors in the next iteration
- * when we can't find argmin alpha.  But what if it takes forever to find that optimal value? */
 			/* If no sufficient descent, continue with cubic interpolation */
 			if ( f <= fmin + 1e-4*alpha*dg && ABS(dalpha/dg) < 0.9) {
 				/* If sufficient descent and two points have been tested and/or minimum has been found, linesearch is done. */
@@ -407,7 +427,6 @@ if ( lambda == 0.0 ) {
 				u2 = sqrt(u2);
 				at = alpha - (alpha - ap)*(dalpha + u2 - u1)/(dalpha - dp + 2.0*u2);
 
-/* HANDE: ap, alpha seem switched, going past the optimum, etc. */
 				if (dalpha/dp > 0) { /* minimum has not been bracketed */
 					if (dalpha <= 0 || at <= 0 || at >= 0.99*MIN(alpha,ap)) {
 						if (dalpha > 0 || at <= 1.01*MAX(ap, alpha)) {
@@ -449,25 +468,25 @@ if ( lambda == 0.0 ) {
 	}
 
 	if ( iter == itnlim ) status = 1;
-		
+	
 
 end:
 	lp->iter = iter;
-if ( verbose > 1 ) {
-	printf("%4d :\t%14.6e\t %14.6e\t | %d \n", iter, f, sqrt(cTc/MAX(1.0, xTx)), pertcnt);
-}
-if (verbose >= 4) {
-	printf("\n");
-	printf("dx: \n");
-	for (j=0; j<lp->n; j++) {
-	    printf("%14.6e \n", dx[j]);
+	if ( verbose > 1 ) {
+		printf("%4d :\t%14.6e\t %14.6e\t | %d \n", iter, f, sqrt(cTc/MAX(1.0, xTx)), pertcnt);
 	}
-	printf("\n");
-}
-	    FREE(dx);
-	    FREE(x0);
+	if (verbose >= 4) {
+		printf("\n");
+		printf("dx: \n");
+		for (j=0; j<lp->n; j++) {
+		    printf("%14.6e \n", dx[j]);
+		}
+		printf("\n");
+	}
+	FREE(dx);
+	FREE(x0);
 
-	    h_close(lp);
+	h_close(lp);
 
 	if (verbose>1) {
 		printf("----------------------\n");

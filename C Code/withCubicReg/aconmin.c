@@ -52,13 +52,14 @@ extern "C" {
 	int maxflag;	/* max or min */
 
 	int itnlim;	/* iteration limit */
+	int pertlim;	/* perturbation limit */
 	double timlim;	/* runtime limit */
 	double inftol;	/* convergence tolerance */
 
 	int v;		/* verbosity level */
 };
 
- static struct options opns = { 0, 500, 0. /* HUGE_VAL */, 1e-6, 0 };
+ static struct options opns = { 0, 500, 10, 0. /* HUGE_VAL */, 1e-6, 0 };
 
  static int neval, ngeval, time_flag, wantver;
  static real ftimes[5];	/* func, grad, constr, Jacobians, Hessians */
@@ -75,6 +76,7 @@ keywds[] = {	/* must be alphabetical */
  KW("min",	IK1_val,&opns.maxflag,	"minimize the objective"),
  KW("minimize",	IK1_val,&opns.maxflag,	"minimize the objective"),
  KW("outlev",	I_val,	&opns.v,	"output level"),
+ KW("pertlim",	I_val,	&opns.pertlim,	"Perturbation Limit"),
  KW("timing",	I_val,	&time_flag,	"timing destination: 1 = stdout, 2 = stderr, 3 = both"),
  KW("timlim",	D_val,	&opns.timlim,	"Time limit"),
  KW("verbose",	I_val,	&opns.v,	"synonym for outlev"),
@@ -273,6 +275,7 @@ update_kp(CONMIN *kp)
 	kp->max = opns.maxflag ? opns.maxflag : 1;
 	kp->itnlim = opns.itnlim;
 	kp->timlim = opns.timlim;
+	kp->pertlim = opns.pertlim;
 	}
 
 #ifdef __cplusplus

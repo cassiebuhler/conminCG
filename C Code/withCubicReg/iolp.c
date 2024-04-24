@@ -48,6 +48,7 @@ CONMIN	*openlp(void)
 		lp->inftol  = 1.0e-6;/*	infeasibility requested	*/
 		lp->quadratic = 0; /* assert problem is QP */
 		lp->init_vars	  = deflt_init;
+		lp->pertlim = 10;  /* limit on number of lambda updates for cubic regularization, U in Algorithm 2 */
 /*
 		lp->h_init        = nl_init_mps;
 		lp->h_update 	  = nl_update_dummy;

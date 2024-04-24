@@ -27,6 +27,7 @@ typedef	struct conmin {
 	int max;	/* max = -1, min = 1 */
 	double inftol;	/* infeasibility tolerance */
 	int itnlim;	/* iteration limit */
+	int pertlim;	/* perturbation limit */
 	double timlim;	/* time limit */
 	int verbose;	/* level of verbosity */
 	int quadratic;	/* assert problem is quadratic */
