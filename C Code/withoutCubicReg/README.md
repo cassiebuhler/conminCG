@@ -20,7 +20,6 @@ make
 at the command prompt for MacOS/Linux/Unix, or
 ```
 make -f makefile.vc
-
 ```
 at a developer command prompt (Visual Studio) for Windows.  This will create the executable conmin (or conmin.exe for Windows).
 
