@@ -14,11 +14,17 @@ In our paper, we used the AMPL models available [here](https://vanderbei.princet
 
 ## INSTALLATION
 
-The software must be compiled prior to use.  A makefile is provided, and the user should edit the makefile with information on the locations of their AMPL and C libraries.  Once the edits are completed, simply run
+The software must be compiled prior to use.  Makefiles are provided for MacOS/Linux/Unix (makefile) and Windows (makefile.vc), and the user should edit the makefile for their platform with information on the locations of their AMPL and C libraries.  Once the edits are completed, simply run
 ```
 make
 ```
-at the command prompt to create the executable, conmin.
+at the command prompt for MacOS/Linux/Unix, or
+```
+make -f makefile.vc
+
+```
+at a developer command prompt (Visual Studio) for Windows.  This will create the executable conmin (or conmin.exe for Windows).
+
 
 ## HOW TO USE IT
 

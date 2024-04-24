@@ -1,0 +1,61 @@
+# Makefile for conmin-cg and hybrid cubic
+# Configuration Section
+
+# Edit the following line to point to your AMPL/solvers directory
+S= C:\Users\hyben\Downloads\solvers\solvers
+
+CC = cl -I$S -DPC
+OPTFLAGS = /Ox
+AR = lib
+ARFLAGS = vq
+
+# No need to change anything below
+default: conmin.exe
+
+.SUFFIXES: .obj .c .ln
+
+OBJECTS1 = linalg.obj optlp.obj iolp.obj hash.obj cputime.obj 
+
+LINTS1 = aconmin.ln linalg.ln optlp.ln iolp.ln hash.ln
+
+INCL1 = conmin.h myalloc.h hash.h
+
+conmin.exe: aconmin.obj version.obj libconmin.lib 
+	$(CC) $(OPTFLAGS) -Feconmin.exe aconmin.obj version.obj libconmin.lib $S\amplsolv.lib
+
+libconmin.lib: $(OBJECTS1) 
+	-del libconmin.lib
+	$(AR) -out:libconmin.lib $(OBJECTS1)
+
+lint: $(LINTS1)
+	lint $(LINTS1) -lm | grep -v "op CAST" | grep -v "may sign-extend"
+
+$(OBJECTS1): $(INCL1)
+
+hash.obj: hash.h myalloc.h
+
+iolp.obj: conmin.h hash.h myalloc.h
+
+linalg.obj: conmin.h myalloc.h
+
+aconmin.obj: conmin.h myalloc.h
+
+optlp.obj: conmin.h conmin1.h myalloc.h
+
+$(LINTS1): $(INCL1)
+
+.c.obj:
+	$(CC) $(OPTFLAGS) -c $<
+
+.c.ln:
+	lint -c $< | grep -v "op CAST" | grep -v "may sign-extend"
+
+clean: FORCE
+	-del libconmin.lib
+	-del conmin.exe
+	-del *.obj
+	-del core
+
+FORCE:
+
+
