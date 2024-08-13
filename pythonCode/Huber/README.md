@@ -34,4 +34,4 @@ We run the problem 100 times by using a for loop. To change the number of proble
 
 ## CONTACT 
 
-Email: cb3452@drexel.edu 
+Email: cassidy.buhler@gmail.com

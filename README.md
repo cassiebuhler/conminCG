@@ -19,4 +19,4 @@ Python code:
 - Two machine learning examples: Huber and Group LASSO.
 
 ## Contact
-Email: cb3452@drexel.edu 
+Email: cassidy.buhler@gmail.com

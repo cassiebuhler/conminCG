@@ -37,5 +37,5 @@ The model option be set to integers from 1 to 4 to control the optimizer used:
 
 ## CONTACT 
 
-Email: cb3452@drexel.edu 
+Email: cassidy.buhler@gmail.com
 
