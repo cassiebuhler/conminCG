@@ -1,4 +1,4 @@
-# ConminCG - C Implementation
+# conminCG - C Implementation
 
 - This repository contains the code from our paper, *Regularized Step Directions in Nonlinear Conjugate Gradient* Methods. [Preprint](https://arxiv.org/abs/2110.06308)
 - Authors: Cassidy K. Buhler, Hande Y. Benson, and David F. Shanno
