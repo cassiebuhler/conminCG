@@ -2,7 +2,7 @@
 
  <a href="https://zenodo.org/doi/10.5281/zenodo.13315591"><img src="https://zenodo.org/badge/468032697.svg" alt="DOI"></a>
 
-- This repository contains the code from our paper, *Regularized Step Directions in Nonlinear Conjugate Gradient Methods*. [Preprint](https://arxiv.org/abs/2110.06308).
+- This repository contains the code from our paper, *Regularized Step Directions in Nonlinear Conjugate Gradient Methods*. [Article](https://link.springer.com/article/10.1007/s12532-024-00265-9).
 - Authors: Cassidy K. Buhler, Hande Y. Benson, and David F. Shanno
 - Code is adapted from [Conmin](https://dl.acm.org/doi/pdf/10.1145/355921.355933) by David F. Shanno.
 
