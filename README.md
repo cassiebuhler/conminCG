@@ -12,7 +12,7 @@ CGM requires "restarting" the step direction in the following scenarios: 1) ever
 
 #### Our Approach
 
-In our paper, ["Regularized Step Directions in Nonlinear Conjugate Gradient Methods"](https://arxiv.org/abs/2110.06308), we proposed **CGM with hybrid cubic regularization** to improve the step quality of CGM. 
+In our paper, ["Regularized Step Directions in Nonlinear Conjugate Gradient Methods"](https://link.springer.com/article/10.1007/s12532-024-00265-9), we proposed **CGM with hybrid cubic regularization** to improve the step quality of CGM. 
 - Using Shanno's reformulation of CGM as a memoryless BFGS method, we derive new formulas for the regularized step direction that exhibit the same memoryless and matrix-free properties.
 - CGM with hybrid cubic regularization uses a regularized step in lieu of a Powell Restart. 
 
